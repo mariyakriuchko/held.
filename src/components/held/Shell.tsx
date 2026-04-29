@@ -11,8 +11,15 @@ export function Shell({ children, className }: { children: React.ReactNode; clas
       )}
     >
       <div className="flex w-full max-w-[560px] flex-1 flex-col">
-        <header className="mb-12 text-xs uppercase tracking-[0.32em] text-muted-foreground">
-          held
+        <header className="mb-12">
+          <a
+            href="/"
+            className="ink-accent inline-flex items-baseline font-serif text-2xl lowercase leading-none tracking-tight"
+            aria-label="held — home"
+          >
+            <span className="underline-hand">held</span>
+            <span aria-hidden className="ml-0.5 text-foreground/70">.</span>
+          </a>
         </header>
         {children}
       </div>
