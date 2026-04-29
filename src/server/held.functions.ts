@@ -50,7 +50,7 @@ export const submitSession = createServerFn({ method: "POST" })
           z.object({
             card_id: z.string().uuid(),
             reaction: reactionEnum,
-            weighs: z.boolean(),
+            weighs: z.boolean().optional().default(false),
           }),
         ),
         reflection: z.string().optional().default(""),
