@@ -1,0 +1,1 @@
+UPDATE public.cards SET scenario = 'A school email landed at 9pm. Permission slip needed by tomorrow morning. You never read the message — and got the call from school to pick up your kid.' WHERE id = '305bfcaf-a7ec-4b7a-9f1a-17f3d7b1fd73';

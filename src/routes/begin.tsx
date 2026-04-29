@@ -62,7 +62,7 @@ function SkipLink({ active, onClick }: { active: boolean; onClick: () => void })
       onClick={onClick}
       className={cn(
         "ml-2 text-xs underline-offset-4 transition-colors",
-        active ? "ink-burgundy underline" : "text-muted-foreground hover:text-foreground hover:underline",
+        active ? "ink-accent underline" : "text-muted-foreground hover:text-foreground hover:underline",
       )}
     >
       {active ? "skipped" : "skip"}
