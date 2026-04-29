@@ -70,10 +70,6 @@ function Result() {
   const [showCoping, setShowCoping] = React.useState(false);
 
   const top = data.top_categories;
-  const headline =
-    top.length > 0
-      ? `here's what came up: ${categoryShort(top[0])}.`
-      : "you showed up. that already counts.";
   const sub = severitySub(data.dominant_severity, top[0]);
 
   const share = async () => {
@@ -93,9 +89,20 @@ function Result() {
 
   return (
     <Shell>
-      <h2 className="font-serif text-3xl leading-[1.2] tracking-tight text-foreground sm:text-4xl">
-        {headline}
-      </h2>
+      {top.length > 0 ? (
+        <>
+          <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+            here's what came up
+          </p>
+          <h2 className="mt-3 font-serif text-3xl leading-[1.2] tracking-tight text-foreground sm:text-4xl">
+            <span className="ink-accent underline-hand">{categoryShort(top[0])}</span>.
+          </h2>
+        </>
+      ) : (
+        <h2 className="font-serif text-3xl leading-[1.2] tracking-tight text-foreground sm:text-4xl">
+          you showed up. that already counts.
+        </h2>
+      )}
       {sub && (
         <p className="mt-4 font-serif text-xl leading-snug text-muted-foreground">{sub}</p>
       )}
