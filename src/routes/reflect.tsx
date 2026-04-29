@@ -61,7 +61,7 @@ function Reflect() {
           disabled={submitting}
           className="rounded-md bg-foreground px-8 py-3 font-serif text-lg text-background transition-opacity hover:opacity-90 disabled:opacity-40"
         >
-          {submitting ? "loading…" : "see what you carry"}
+          {submitting ? "loading…" : "see what came up"}
         </button>
         <button
           onClick={() => finish("")}

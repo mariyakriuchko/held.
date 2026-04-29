@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Shell } from "@/components/held/Shell";
-import { Underline } from "@/components/held/marks";
 
 export const Route = createFileRoute("/")({
   component: Hero,
@@ -12,14 +11,7 @@ function Hero() {
       <div className="flex flex-1 flex-col justify-center">
         <h1 className="font-serif text-5xl leading-[1.05] tracking-tight text-foreground sm:text-6xl">
           you're carrying more than{" "}
-          <span className="relative inline-block">
-            <span className="ink-terracotta">anyone sees</span>
-            <Underline
-              className="ink-mustard absolute left-0 right-0 -bottom-2 w-full"
-              aria-hidden
-            />
-          </span>
-          .
+          <span className="ink-burgundy italic">anyone sees</span>.
         </h1>
 
         <p className="mt-10 text-lg leading-relaxed text-foreground/80">

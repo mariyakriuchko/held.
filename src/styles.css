@@ -43,9 +43,7 @@
   --color-ink-soft: var(--ink-soft);
   --color-paper: var(--paper);
   --color-paper-warm: var(--paper-warm);
-  --color-terracotta: var(--terracotta);
-  --color-sage: var(--sage);
-  --color-mustard: var(--mustard);
+  --color-burgundy: var(--burgundy);
 
   --font-serif: "Fraunces", ui-serif, Georgia, serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -60,10 +58,8 @@
   --ink: oklch(0.22 0.015 55);
   --ink-soft: oklch(0.42 0.018 55);
 
-  /* Three accents — used sparingly */
-  --terracotta: oklch(0.62 0.12 40);
-  --sage: oklch(0.58 0.07 145);
-  --mustard: oklch(0.78 0.11 85);
+  /* Single accent — deep burgundy, used sparingly */
+  --burgundy: oklch(0.42 0.12 20);
 
   --background: var(--paper);
   --foreground: var(--ink);
@@ -77,7 +73,7 @@
   --secondary-foreground: var(--ink);
   --muted: var(--paper-warm);
   --muted-foreground: var(--ink-soft);
-  --accent: var(--terracotta);
+  --accent: var(--burgundy);
   --accent-foreground: var(--paper);
   --destructive: oklch(0.55 0.15 27);
   --destructive-foreground: var(--paper);
@@ -91,9 +87,7 @@
   --paper-warm: oklch(0.22 0.015 60);
   --ink: oklch(0.94 0.01 80);
   --ink-soft: oklch(0.72 0.015 70);
-  --terracotta: oklch(0.7 0.11 40);
-  --sage: oklch(0.65 0.07 145);
-  --mustard: oklch(0.8 0.1 85);
+  --burgundy: oklch(0.62 0.13 20);
 
   --background: var(--paper);
   --foreground: var(--ink);
@@ -107,7 +101,7 @@
   --secondary-foreground: var(--ink);
   --muted: var(--paper-warm);
   --muted-foreground: var(--ink-soft);
-  --accent: var(--terracotta);
+  --accent: var(--burgundy);
   --accent-foreground: var(--paper);
   --destructive: oklch(0.65 0.18 27);
   --destructive-foreground: var(--paper);
@@ -141,14 +135,8 @@
     font-optical-sizing: auto;
   }
 
-  /* Emphasis word — used in headings */
-  .ink-mustard {
-    color: var(--mustard);
-  }
-  .ink-terracotta {
-    color: var(--terracotta);
-  }
-  .ink-sage {
-    color: var(--sage);
+  /* Emphasis ink — single accent */
+  .ink-burgundy {
+    color: var(--burgundy);
   }
 }
