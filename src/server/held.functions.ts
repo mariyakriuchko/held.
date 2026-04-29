@@ -171,10 +171,13 @@ export const getResult = createServerFn({ method: "GET" })
       .map(([c]) => c);
 
     // Dominant severity: which kind of load weighs most.
-    const severityOrder = (["critical", "medium", "light"] as const).sort(
-      (a, b) => sevTally[b] - sevTally[a],
-    );
-    const dominant_severity = severityOrder[0];
+    const severities: Array<"critical" | "medium" | "light"> = [
+      "critical",
+      "medium",
+      "light",
+    ];
+    severities.sort((a, b) => sevTally[b] - sevTally[a]);
+    const dominant_severity = severities[0];
 
     const { data: count } = await supabaseAdmin.rpc("parents_this_week");
 
