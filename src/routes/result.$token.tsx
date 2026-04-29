@@ -121,7 +121,7 @@ function Result() {
           <p className="text-xs uppercase tracking-wider text-muted-foreground">
             also showing up
           </p>
-          {top.slice(1).map((c) => (
+          {top.slice(1).map((c: string) => (
             <p key={c} className="font-serif text-lg text-foreground">
               {shortLabel(c)}
             </p>
