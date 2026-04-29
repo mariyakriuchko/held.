@@ -144,8 +144,10 @@
   .underline-hand {
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'><path d='M2 7 Q 25 2, 50 6 T 100 7 T 150 6 T 198 7' stroke='%23386b4a' stroke-width='2.2' fill='none' stroke-linecap='round'/></svg>");
     background-repeat: no-repeat;
-    background-position: 0 calc(100% + 0.22em);
-    background-size: 100% 0.5em;
-    padding-bottom: 0.32em;
+    background-position: 0 100%;
+    background-size: 100% 0.35em;
+    padding-bottom: 0.45em;
+    display: inline-block;
+    line-height: 1.25;
   }
 }
