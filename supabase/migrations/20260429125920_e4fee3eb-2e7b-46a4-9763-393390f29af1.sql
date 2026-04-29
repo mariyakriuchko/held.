@@ -1,0 +1,28 @@
+TRUNCATE TABLE public.cards CASCADE;
+
+INSERT INTO public.cards (category, severity, scenario) VALUES
+('school_comm','medium','A school email landed at 9pm. Permission slip needed by tomorrow morning. The printer''s out of ink.'),
+('school_comm','light','A WhatsApp poll about next week''s outing. Already 14 replies. Yours isn''t one of them.'),
+('school_comm','medium','Three threads from the class chat today. One mentioned your child by name and you haven''t found which.'),
+('school_comm','critical','The teacher sent a "quick note" last week. You read it, meant to reply, and now it''s buried.'),
+('school_comm','light','The newsletter went out Sunday. You haven''t opened it. There might be a costume day in there.'),
+('deadlines_prep','critical','Holiday care registration opens Monday. Spots fill in two days. You haven''t decided which weeks yet.'),
+('deadlines_prep','medium','Costume day is Friday. The email said this two weeks ago. Nothing has been bought.'),
+('deadlines_prep','medium','The lunch order needs to be in by tonight or it''s sandwiches all week.'),
+('deadlines_prep','critical','The activity sign-up closed yesterday. You meant to do it Tuesday.'),
+('deadlines_prep','light','Picture day is next Wednesday. The good shirt is in the wash.'),
+('appointments','critical','The vaccination reminder card has been on the fridge since March. Still no appointment scheduled.'),
+('appointments','medium','The dentist said "see you in six months" — that was eight months ago.'),
+('appointments','medium','The pediatrician wanted a follow-up on that thing. You can''t remember if it was four weeks or four months.'),
+('appointments','critical','The referral expires in two weeks. The waiting list is three months long.'),
+('appointments','light','The eye test came back "borderline, recheck in a year." That was a year and a bit ago.'),
+('social_obligations','light','Someone in the class chat is collecting for the teacher''s gift. €15 by Thursday. You haven''t transferred it yet.'),
+('social_obligations','medium','Bake sale tomorrow. The sign-up sheet has your name on it. You can''t remember if you promised lemon cake or chocolate muffins.'),
+('social_obligations','light','The birthday party is Saturday. You said yes weeks ago. There''s no gift in the house.'),
+('social_obligations','medium','The class parent asked for "a few volunteers" on Friday. No one has replied yet, including you.'),
+('social_obligations','light','It''s another mum''s birthday in the WhatsApp group. The thread is lighting up. You haven''t typed yet.'),
+('daily_logistics','light','The indoor shoes are getting tight. No one''s said anything yet.'),
+('daily_logistics','medium','The library book has been overdue for ten days. You''ve walked past the library twice.'),
+('daily_logistics','light','The water bottle didn''t come home Friday. It''s probably under a coat hook somewhere in the school.'),
+('daily_logistics','medium','The favourite leggings have a hole in the knee. They''re asked for every other morning.'),
+('daily_logistics','light','The sticker chart on the fridge stopped getting stickers two weeks ago. No one has mentioned it.');
