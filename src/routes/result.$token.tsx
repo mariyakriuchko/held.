@@ -11,8 +11,8 @@ export const Route = createFileRoute("/result/$token")({
   head: ({ loaderData }) => {
     const top = loaderData?.top_categories ?? [];
     const desc = top.length
-      ? `Most of what you carry is the ${categoryLabel(top[0])}.`
-      : "A quiet two minutes about the invisible part of parenting.";
+      ? `Most of what you carry is ${categoryShort(top[0])}.`
+      : "Two minutes on the invisible part of parenting.";
     return {
       meta: [
         { title: "what you carry — held" },
@@ -34,31 +34,32 @@ export const Route = createFileRoute("/result/$token")({
   component: Result,
 });
 
-function categoryLabel(c: string): string {
+// Short, natural-language label for a cluster.
+function categoryShort(c: string): string {
   switch (c) {
-    case "noticing":
-      return "noticing — the small things no one else sees coming";
-    case "anticipating":
-      return "anticipating — running ahead of what hasn't happened yet";
-    case "remembering":
-      return "remembering — holding details no one else holds";
-    case "soothing":
-      return "soothing — being the soft place when no one is soft for you";
-    case "mediating":
-      return "mediating — translating between people who don't realize you're translating";
-    case "logistics":
-      return "logistics — being the default when there is no default";
-    case "identity-loss":
-      return "the quiet loss of who you were before";
-    case "invisible-decisions":
-      return "the small invisible decisions you've already made today";
+    case "school_comm":
+      return "the school messages";
+    case "deadlines_prep":
+      return "the deadlines and the prep";
+    case "appointments":
+      return "the appointments quietly slipping";
+    case "social_obligations":
+      return "the unwritten social obligations";
+    case "daily_logistics":
+      return "the small daily logistics";
     default:
       return c;
   }
 }
 
-function shortLabel(c: string): string {
-  return categoryLabel(c).split(" — ")[0];
+// Sentence templates by dominant severity — same data, different framing.
+function severitySub(sev: "critical" | "medium" | "light" | undefined, top?: string): string {
+  if (!top) return "";
+  if (sev === "critical")
+    return "and most of it is the kind of thing that has consequences if it slips.";
+  if (sev === "light")
+    return "the small stuff — the kind no one notices, but it adds up.";
+  return "the steady weight of what no one else is tracking.";
 }
 
 function Result() {
@@ -71,26 +72,9 @@ function Result() {
   const top = data.top_categories;
   const headline =
     top.length > 0
-      ? `most of what you carry is the ${shortLabel(top[0])} —`
+      ? `most of what you carry is ${categoryShort(top[0])}.`
       : "you showed up. that already counts.";
-  const sub =
-    top.length > 0
-      ? top[0] === "noticing"
-        ? "the small things no one else sees coming."
-        : top[0] === "remembering"
-          ? "the details no one else is holding."
-          : top[0] === "anticipating"
-            ? "everything that hasn't happened yet."
-            : top[0] === "soothing"
-              ? "being soft when no one is soft for you."
-              : top[0] === "logistics"
-                ? "being the default when there is no default."
-                : top[0] === "identity-loss"
-                  ? "and underneath, who you were before."
-                  : top[0] === "mediating"
-                    ? "translating between people who don't know you're translating."
-                    : "the quiet decisions you've already made today."
-      : "";
+  const sub = severitySub(data.dominant_severity, top[0]);
 
   const share = async () => {
     const url = `${window.location.origin}/r/${token}`;
@@ -113,7 +97,7 @@ function Result() {
         {headline}
       </h2>
       {sub && (
-        <p className="mt-3 font-serif text-2xl leading-snug text-muted-foreground">{sub}</p>
+        <p className="mt-4 font-serif text-xl leading-snug text-muted-foreground">{sub}</p>
       )}
 
       {top.length > 1 && (
@@ -123,7 +107,7 @@ function Result() {
           </p>
           {top.slice(1).map((c: string) => (
             <p key={c} className="font-serif text-lg text-foreground">
-              {shortLabel(c)}
+              {categoryShort(c)}
             </p>
           ))}
         </div>
@@ -231,7 +215,7 @@ function CopingForm({ token, onDone }: { token: string; onDone: () => void }) {
         onChange={(e) => setText(e.target.value)}
         placeholder="or in your own words…"
         rows={3}
-        className="mt-4 w-full resize-none rounded-md border border-border bg-card p-3 text-sm text-foreground placeholder:text-muted-foreground/60 focus:border-foreground/40 focus:outline-none"
+        className="mt-4 w-full resize-none rounded-md border border-border bg-card p-3 text-sm text-foreground placeholder:text-muted-foreground/60 focus:border-foreground/50 focus:outline-none"
       />
       <button
         onClick={submit}

@@ -18,16 +18,16 @@ function Reflect() {
     if (s.reactions.length === 0) navigate({ to: "/" });
   }, [navigate]);
 
-  const finish = async () => {
+  const finish = async (reflection: string) => {
     if (submitting) return;
     setSubmitting(true);
-    const s = updateSession((cur) => ({ ...cur, reflection: text }));
+    const s = updateSession((cur) => ({ ...cur, reflection }));
     try {
       const { token } = await submitSession({
         data: {
           onboarding: s.onboarding,
           reactions: s.reactions,
-          reflection: text,
+          reflection,
         },
       });
       updateSession((cur) => ({ ...cur, token }));
@@ -40,7 +40,7 @@ function Reflect() {
 
   return (
     <Shell>
-      <h2 className="font-serif text-2xl leading-snug text-foreground">
+      <h2 className="font-serif text-3xl leading-snug text-foreground">
         one last thing — only if you want.
       </h2>
       <p className="mt-3 text-base text-muted-foreground">
@@ -52,22 +52,19 @@ function Reflect() {
         onChange={(e) => setText(e.target.value)}
         placeholder="Or skip — it's okay."
         rows={6}
-        className="mt-8 w-full resize-none rounded-md border border-border bg-card p-4 font-serif text-lg leading-relaxed text-foreground placeholder:text-muted-foreground/60 focus:border-foreground/40 focus:outline-none"
+        className="mt-8 w-full resize-none rounded-md border border-border bg-card p-4 font-serif text-lg leading-relaxed text-foreground placeholder:text-muted-foreground/60 focus:border-foreground/50 focus:outline-none"
       />
 
       <div className="mt-10 flex items-center gap-6">
         <button
-          onClick={finish}
+          onClick={() => finish(text)}
           disabled={submitting}
           className="rounded-md bg-foreground px-8 py-3 font-serif text-lg text-background transition-opacity hover:opacity-90 disabled:opacity-40"
         >
-          {submitting ? "a moment…" : "see what you carry"}
+          {submitting ? "loading…" : "see what you carry"}
         </button>
         <button
-          onClick={() => {
-            setText("");
-            finish();
-          }}
+          onClick={() => finish("")}
           disabled={submitting}
           className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
         >

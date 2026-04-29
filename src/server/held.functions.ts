@@ -2,18 +2,37 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
-const reactionEnum = z.enum(["this_is_my_life", "rarely", "not_my_world"]);
+const reactionEnum = z.enum(["this_is_my_life", "rarely", "not_my_world", "skip"]);
 
-// Get the deck for this session — shuffled server-side.
+type DeckCard = {
+  id: string;
+  category: string;
+  scenario: string;
+  severity: "critical" | "medium" | "light";
+};
+
+// Pull a balanced deck: roughly 5 critical + 7 medium + 4 light = 16 cards.
+// Shuffled within each tier, then concatenated and re-shuffled lightly so
+// the parent doesn't always meet the heaviest cards first.
 export const getDeck = createServerFn({ method: "GET" }).handler(async () => {
   const { data, error } = await supabaseAdmin
     .from("cards")
-    .select("id, category, scenario")
+    .select("id, category, scenario, severity")
     .eq("active", true);
   if (error) throw new Error(error.message);
-  // Shuffle and take up to 16
-  const shuffled = [...(data ?? [])].sort(() => Math.random() - 0.5).slice(0, 16);
-  return shuffled;
+
+  const all = (data ?? []) as DeckCard[];
+  const byTier = (t: string) =>
+    all.filter((c) => c.severity === t).sort(() => Math.random() - 0.5);
+
+  const picked: DeckCard[] = [
+    ...byTier("critical").slice(0, 5),
+    ...byTier("medium").slice(0, 7),
+    ...byTier("light").slice(0, 4),
+  ];
+
+  // Light final shuffle so severity isn't predictable.
+  return picked.sort(() => Math.random() - 0.5);
 });
 
 // Submit a completed session: onboarding + reactions + optional reflection.
@@ -31,7 +50,7 @@ export const submitSession = createServerFn({ method: "POST" })
           z.object({
             card_id: z.string().uuid(),
             reaction: reactionEnum,
-            stings: z.boolean(),
+            weighs: z.boolean(),
           }),
         ),
         reflection: z.string().optional().default(""),
@@ -57,7 +76,7 @@ export const submitSession = createServerFn({ method: "POST" })
         session_id: session.id,
         card_id: r.card_id,
         reaction: r.reaction,
-        stings: r.stings,
+        weighs: r.weighs,
       }));
       const { error: rErr } = await supabaseAdmin.from("reactions").insert(rows);
       if (rErr) throw new Error(rErr.message);
@@ -101,7 +120,10 @@ export const submitCoping = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-// Result page data, looked up by public token.
+// Result data, looked up by public token.
+// We tally:
+//   - top categories (clusters)  -> what kind of load shows up
+//   - severity profile           -> whether it's the big slips or the small stuff
 export const getResult = createServerFn({ method: "GET" })
   .inputValidator((data) => z.object({ token: z.string() }).parse(data))
   .handler(async ({ data }) => {
@@ -114,27 +136,51 @@ export const getResult = createServerFn({ method: "GET" })
 
     const { data: reactions } = await supabaseAdmin
       .from("reactions")
-      .select("card_id, reaction, stings, cards(category)")
+      .select("card_id, reaction, weighs, cards(category, severity)")
       .eq("session_id", session.id);
 
-    // Tally categories where the parent said "this is my life" or "stings"
     const tally = new Map<string, number>();
-    for (const r of reactions ?? []) {
-      const cat = (r as unknown as { cards: { category: string } | null }).cards?.category;
-      if (!cat) continue;
+    const sevTally: Record<"critical" | "medium" | "light", number> = {
+      critical: 0,
+      medium: 0,
+      light: 0,
+    };
+
+    type Joined = {
+      reaction: string;
+      weighs: boolean;
+      cards: { category: string; severity: "critical" | "medium" | "light" } | null;
+    };
+
+    for (const raw of reactions ?? []) {
+      const r = raw as unknown as Joined;
+      const cat = r.cards?.category;
+      const sev = r.cards?.severity;
+      if (!cat || !sev) continue;
       const weight =
         (r.reaction === "this_is_my_life" ? 2 : r.reaction === "rarely" ? 1 : 0) +
-        (r.stings ? 2 : 0);
+        (r.weighs ? 2 : 0);
       if (weight === 0) continue;
       tally.set(cat, (tally.get(cat) ?? 0) + weight);
+      sevTally[sev] += weight;
     }
 
-    const top = [...tally.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3).map(([c]) => c);
+    const top = [...tally.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([c]) => c);
+
+    // Dominant severity: which kind of load weighs most.
+    const severityOrder = (["critical", "medium", "light"] as const).sort(
+      (a, b) => sevTally[b] - sevTally[a],
+    );
+    const dominant_severity = severityOrder[0];
 
     const { data: count } = await supabaseAdmin.rpc("parents_this_week");
 
     return {
       top_categories: top,
+      dominant_severity,
       parents_this_week: (count as number | null) ?? 0,
     };
   });

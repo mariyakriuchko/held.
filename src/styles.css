@@ -6,12 +6,8 @@
 
 /*
  * Held — design system.
- * "A quiet room, not a feed."
- *
- * Palette is paper-like off-white with deep ink text and one
- * muted dusty-terracotta accent. Typography pairs a humane
- * serif (Fraunces) for cards/hero with a clean sans (Inter)
- * for UI. All colors are oklch.
+ * Warm paper, deep ink, dusty terracotta + muted sage + soft mustard.
+ * Typography-led with hand-drawn marks. Subtle paper grain, not flat.
  */
 
 @theme inline {
@@ -47,7 +43,9 @@
   --color-ink-soft: var(--ink-soft);
   --color-paper: var(--paper);
   --color-paper-warm: var(--paper-warm);
-  --color-accent-soft: var(--accent-soft);
+  --color-terracotta: var(--terracotta);
+  --color-sage: var(--sage);
+  --color-mustard: var(--mustard);
 
   --font-serif: "Fraunces", ui-serif, Georgia, serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -57,13 +55,15 @@
   --radius: 0.5rem;
 
   /* Paper palette */
-  --paper: oklch(0.975 0.012 80);          /* warm off-white */
-  --paper-warm: oklch(0.955 0.018 75);     /* a touch deeper */
-  --ink: oklch(0.22 0.015 55);             /* deep brown-ink */
-  --ink-soft: oklch(0.42 0.018 55);        /* secondary text */
+  --paper: oklch(0.975 0.012 80);
+  --paper-warm: oklch(0.955 0.018 75);
+  --ink: oklch(0.22 0.015 55);
+  --ink-soft: oklch(0.42 0.018 55);
 
-  /* Single muted accent — dusty terracotta */
-  --accent-soft: oklch(0.62 0.09 40);
+  /* Three accents — used sparingly */
+  --terracotta: oklch(0.62 0.12 40);
+  --sage: oklch(0.58 0.07 145);
+  --mustard: oklch(0.78 0.11 85);
 
   --background: var(--paper);
   --foreground: var(--ink);
@@ -77,12 +77,12 @@
   --secondary-foreground: var(--ink);
   --muted: var(--paper-warm);
   --muted-foreground: var(--ink-soft);
-  --accent: var(--accent-soft);
+  --accent: var(--terracotta);
   --accent-foreground: var(--paper);
   --destructive: oklch(0.55 0.15 27);
   --destructive-foreground: var(--paper);
-  --border: oklch(0.88 0.015 70);
-  --input: oklch(0.88 0.015 70);
+  --border: oklch(0.86 0.02 70);
+  --input: oklch(0.86 0.02 70);
   --ring: oklch(0.7 0.04 60);
 }
 
@@ -91,7 +91,9 @@
   --paper-warm: oklch(0.22 0.015 60);
   --ink: oklch(0.94 0.01 80);
   --ink-soft: oklch(0.72 0.015 70);
-  --accent-soft: oklch(0.7 0.09 40);
+  --terracotta: oklch(0.7 0.11 40);
+  --sage: oklch(0.65 0.07 145);
+  --mustard: oklch(0.8 0.1 85);
 
   --background: var(--paper);
   --foreground: var(--ink);
@@ -105,7 +107,7 @@
   --secondary-foreground: var(--ink);
   --muted: var(--paper-warm);
   --muted-foreground: var(--ink-soft);
-  --accent: var(--accent-soft);
+  --accent: var(--terracotta);
   --accent-foreground: var(--paper);
   --destructive: oklch(0.65 0.18 27);
   --destructive-foreground: var(--paper);
@@ -128,10 +130,25 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
+    /* Paper grain — very subtle SVG noise overlay, fixed so it doesn't scroll */
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.18  0 0 0 0 0.13  0 0 0 0 0.08  0 0 0 0.05 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    background-attachment: fixed;
+    background-size: 180px 180px;
   }
 
   .font-serif {
     font-family: var(--font-serif);
     font-optical-sizing: auto;
+  }
+
+  /* Emphasis word — used in headings */
+  .ink-mustard {
+    color: var(--mustard);
+  }
+  .ink-terracotta {
+    color: var(--terracotta);
+  }
+  .ink-sage {
+    color: var(--sage);
   }
 }

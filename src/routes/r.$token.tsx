@@ -11,8 +11,8 @@ export const Route = createFileRoute("/r/$token")({
   head: ({ loaderData }) => {
     const top = loaderData?.top_categories?.[0];
     const desc = top
-      ? "A friend wanted you to see this. Two quiet minutes about the invisible part of parenting."
-      : "A quiet two minutes about the invisible part of parenting.";
+      ? "A friend wanted you to see this. Two minutes on the invisible part of parenting."
+      : "Two minutes on the invisible part of parenting.";
     return {
       meta: [
         { title: "someone shared this with you — held" },
@@ -36,22 +36,16 @@ export const Route = createFileRoute("/r/$token")({
 
 function shortLabel(c: string): string {
   switch (c) {
-    case "noticing":
-      return "the noticing";
-    case "anticipating":
-      return "the running-ahead";
-    case "remembering":
-      return "the remembering";
-    case "soothing":
-      return "the soothing";
-    case "mediating":
-      return "the mediating";
-    case "logistics":
-      return "the logistics";
-    case "identity-loss":
-      return "the quiet loss of who they were";
-    case "invisible-decisions":
-      return "the invisible decisions";
+    case "school_comm":
+      return "the school messages";
+    case "deadlines_prep":
+      return "the deadlines and the prep";
+    case "appointments":
+      return "the appointments quietly slipping";
+    case "social_obligations":
+      return "the unwritten social obligations";
+    case "daily_logistics":
+      return "the small daily logistics";
     default:
       return c;
   }
@@ -72,7 +66,7 @@ function PublicResult() {
           : "they sat with these cards. they thought of you."}
       </h1>
       <p className="mt-6 text-base leading-relaxed text-muted-foreground">
-        Held is a quiet two minutes about the invisible part of parenting.
+        Held is two minutes on the invisible part of parenting.
         <br />
         No advice. No score. No fixing.
       </p>

@@ -8,7 +8,8 @@
 export type ParentRole = "mother" | "father" | "co_parent" | "prefer_not_to_say";
 export type NumChildren = "1" | "2" | "3+";
 export type AgeBand = "0-2" | "2-4" | "5-7" | "8-10" | "11+";
-export type Reaction = "this_is_my_life" | "rarely" | "not_my_world";
+// "skip" is a real answer in the data — means the parent didn't want to answer.
+export type Reaction = "this_is_my_life" | "rarely" | "not_my_world" | "skip";
 
 export type Onboarding = {
   parent_role: ParentRole | null;
@@ -19,7 +20,7 @@ export type Onboarding = {
 export type CardReaction = {
   card_id: string;
   reaction: Reaction;
-  stings: boolean;
+  weighs: boolean;
 };
 
 export type LocalSession = {
