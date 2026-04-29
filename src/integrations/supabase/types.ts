@@ -14,13 +14,204 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      cards: {
+        Row: {
+          active: boolean
+          age_tags: string[]
+          category: string
+          created_at: string
+          id: string
+          role_tags: string[]
+          scenario: string
+        }
+        Insert: {
+          active?: boolean
+          age_tags?: string[]
+          category: string
+          created_at?: string
+          id?: string
+          role_tags?: string[]
+          scenario: string
+        }
+        Update: {
+          active?: boolean
+          age_tags?: string[]
+          category?: string
+          created_at?: string
+          id?: string
+          role_tags?: string[]
+          scenario?: string
+        }
+        Relationships: []
+      }
+      coping: {
+        Row: {
+          chips: string[]
+          created_at: string
+          id: string
+          session_id: string
+          text: string | null
+        }
+        Insert: {
+          chips?: string[]
+          created_at?: string
+          id?: string
+          session_id: string
+          text?: string | null
+        }
+        Update: {
+          chips?: string[]
+          created_at?: string
+          id?: string
+          session_id?: string
+          text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coping_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reactions: {
+        Row: {
+          card_id: string
+          created_at: string
+          id: string
+          reaction: string
+          session_id: string
+          stings: boolean
+        }
+        Insert: {
+          card_id: string
+          created_at?: string
+          id?: string
+          reaction: string
+          session_id: string
+          stings?: boolean
+        }
+        Update: {
+          card_id?: string
+          created_at?: string
+          id?: string
+          reaction?: string
+          session_id?: string
+          stings?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reactions_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reactions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reflections: {
+        Row: {
+          created_at: string
+          id: string
+          session_id: string
+          text: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          session_id: string
+          text: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          session_id?: string
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reflections_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sessions: {
+        Row: {
+          age_bands: string[]
+          channel: string | null
+          created_at: string
+          id: string
+          num_children: string | null
+          parent_role: string | null
+          token: string
+        }
+        Insert: {
+          age_bands?: string[]
+          channel?: string | null
+          created_at?: string
+          id?: string
+          num_children?: string | null
+          parent_role?: string | null
+          token?: string
+        }
+        Update: {
+          age_bands?: string[]
+          channel?: string | null
+          created_at?: string
+          id?: string
+          num_children?: string | null
+          parent_role?: string | null
+          token?: string
+        }
+        Relationships: []
+      }
+      shares: {
+        Row: {
+          channel: string | null
+          created_at: string
+          id: string
+          session_id: string
+        }
+        Insert: {
+          channel?: string | null
+          created_at?: string
+          id?: string
+          session_id: string
+        }
+        Update: {
+          channel?: string | null
+          created_at?: string
+          id?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shares_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      parents_this_week: { Args: never; Returns: number }
     }
     Enums: {
       [_ in never]: never
