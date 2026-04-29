@@ -9,38 +9,122 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ReflectRouteImport } from './routes/reflect'
+import { Route as CardsRouteImport } from './routes/cards'
+import { Route as BeginRouteImport } from './routes/begin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ResultTokenRouteImport } from './routes/result.$token'
+import { Route as RTokenRouteImport } from './routes/r.$token'
 
+const ReflectRoute = ReflectRouteImport.update({
+  id: '/reflect',
+  path: '/reflect',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CardsRoute = CardsRouteImport.update({
+  id: '/cards',
+  path: '/cards',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BeginRoute = BeginRouteImport.update({
+  id: '/begin',
+  path: '/begin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResultTokenRoute = ResultTokenRouteImport.update({
+  id: '/result/$token',
+  path: '/result/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RTokenRoute = RTokenRouteImport.update({
+  id: '/r/$token',
+  path: '/r/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/begin': typeof BeginRoute
+  '/cards': typeof CardsRoute
+  '/reflect': typeof ReflectRoute
+  '/r/$token': typeof RTokenRoute
+  '/result/$token': typeof ResultTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/begin': typeof BeginRoute
+  '/cards': typeof CardsRoute
+  '/reflect': typeof ReflectRoute
+  '/r/$token': typeof RTokenRoute
+  '/result/$token': typeof ResultTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/begin': typeof BeginRoute
+  '/cards': typeof CardsRoute
+  '/reflect': typeof ReflectRoute
+  '/r/$token': typeof RTokenRoute
+  '/result/$token': typeof ResultTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/begin'
+    | '/cards'
+    | '/reflect'
+    | '/r/$token'
+    | '/result/$token'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/begin' | '/cards' | '/reflect' | '/r/$token' | '/result/$token'
+  id:
+    | '__root__'
+    | '/'
+    | '/begin'
+    | '/cards'
+    | '/reflect'
+    | '/r/$token'
+    | '/result/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BeginRoute: typeof BeginRoute
+  CardsRoute: typeof CardsRoute
+  ReflectRoute: typeof ReflectRoute
+  RTokenRoute: typeof RTokenRoute
+  ResultTokenRoute: typeof ResultTokenRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/reflect': {
+      id: '/reflect'
+      path: '/reflect'
+      fullPath: '/reflect'
+      preLoaderRoute: typeof ReflectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cards': {
+      id: '/cards'
+      path: '/cards'
+      fullPath: '/cards'
+      preLoaderRoute: typeof CardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/begin': {
+      id: '/begin'
+      path: '/begin'
+      fullPath: '/begin'
+      preLoaderRoute: typeof BeginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,21 +132,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/result/$token': {
+      id: '/result/$token'
+      path: '/result/$token'
+      fullPath: '/result/$token'
+      preLoaderRoute: typeof ResultTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/r/$token': {
+      id: '/r/$token'
+      path: '/r/$token'
+      fullPath: '/r/$token'
+      preLoaderRoute: typeof RTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BeginRoute: BeginRoute,
+  CardsRoute: CardsRoute,
+  ReflectRoute: ReflectRoute,
+  RTokenRoute: RTokenRoute,
+  ResultTokenRoute: ResultTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
