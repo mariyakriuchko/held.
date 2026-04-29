@@ -18,7 +18,7 @@ export function Shell({ children, className }: { children: React.ReactNode; clas
             aria-label="held — home"
           >
             <span className="underline-hand">held</span>
-            <span aria-hidden className="ml-0.5 text-foreground/70">.</span>
+            <span aria-hidden className="ml-0.5 text-foreground">.</span>
           </a>
         </header>
         {children}
