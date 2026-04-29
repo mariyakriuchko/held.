@@ -81,7 +81,7 @@ export const submitSession = createServerFn({ method: "POST" })
         .in("id", ids);
       const validIds = new Set((validCards ?? []).map((c) => c.id));
       const rows = data.reactions
-        .filter((r) => validIds.has(r.card_id))
+        .filter((r) => validIds.has(r.card_id) && r.reaction !== "skip")
         .map((r) => ({
           session_id: session.id,
           card_id: r.card_id,
