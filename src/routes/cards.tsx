@@ -134,7 +134,7 @@ function Cards() {
               className={cn(
                 "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-all",
                 weighs
-                  ? "ink-burgundy border-burgundy bg-burgundy/10"
+                  ? "ink-accent border-accent bg-accent/10"
                   : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground",
               )}
               aria-pressed={weighs}
