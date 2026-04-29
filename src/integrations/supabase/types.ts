@@ -23,6 +23,7 @@ export type Database = {
           id: string
           role_tags: string[]
           scenario: string
+          severity: string
         }
         Insert: {
           active?: boolean
@@ -32,6 +33,7 @@ export type Database = {
           id?: string
           role_tags?: string[]
           scenario: string
+          severity?: string
         }
         Update: {
           active?: boolean
@@ -41,6 +43,7 @@ export type Database = {
           id?: string
           role_tags?: string[]
           scenario?: string
+          severity?: string
         }
         Relationships: []
       }
@@ -83,7 +86,7 @@ export type Database = {
           id: string
           reaction: string
           session_id: string
-          stings: boolean
+          weighs: boolean
         }
         Insert: {
           card_id: string
@@ -91,7 +94,7 @@ export type Database = {
           id?: string
           reaction: string
           session_id: string
-          stings?: boolean
+          weighs?: boolean
         }
         Update: {
           card_id?: string
@@ -99,7 +102,7 @@ export type Database = {
           id?: string
           reaction?: string
           session_id?: string
-          stings?: boolean
+          weighs?: boolean
         }
         Relationships: [
           {
