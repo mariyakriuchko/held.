@@ -20,6 +20,23 @@ function Hero() {
           No advice. No score. No fixing.
         </p>
 
+        <div className="mt-12 border-t border-border/60 pt-8">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+            what happens
+          </p>
+          <p className="mt-4 text-base leading-relaxed text-foreground/80">
+            Small moments. The school email at 9pm. The dentist appointment you keep meaning
+            to book. Summer sneakers that should have been ordered a week ago.
+            <br />
+            You say which ones happen in your house — and which ones weigh.
+          </p>
+          <p className="mt-4 text-base leading-relaxed text-foreground/80">
+            At the end you see the{" "}
+            <span className="ink-accent underline-hand">shape</span> of what you're carrying,
+            and how it compares to other parents.
+          </p>
+        </div>
+
         <div className="mt-12">
           <Link
             to="/begin"
@@ -30,7 +47,8 @@ function Hero() {
         </div>
 
         <p className="mt-12 text-xs leading-relaxed text-muted-foreground">
-          Anonymous. Skip anything you don't want to answer.
+          Anonymous. Skip anything. Built by parents trying to understand parents — your
+          answers help the picture.
         </p>
       </div>
     </Shell>
