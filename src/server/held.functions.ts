@@ -72,14 +72,26 @@ export const submitSession = createServerFn({ method: "POST" })
     if (sErr || !session) throw new Error(sErr?.message ?? "session insert failed");
 
     if (data.reactions.length > 0) {
-      const rows = data.reactions.map((r) => ({
-        session_id: session.id,
-        card_id: r.card_id,
-        reaction: r.reaction,
-        weighs: r.weighs,
-      }));
-      const { error: rErr } = await supabaseAdmin.from("reactions").insert(rows);
-      if (rErr) throw new Error(rErr.message);
+      // Filter out reactions whose card_id no longer exists (stale session
+      // from before a card re-seed).
+      const ids = [...new Set(data.reactions.map((r) => r.card_id))];
+      const { data: validCards } = await supabaseAdmin
+        .from("cards")
+        .select("id")
+        .in("id", ids);
+      const validIds = new Set((validCards ?? []).map((c) => c.id));
+      const rows = data.reactions
+        .filter((r) => validIds.has(r.card_id))
+        .map((r) => ({
+          session_id: session.id,
+          card_id: r.card_id,
+          reaction: r.reaction,
+          weighs: r.weighs,
+        }));
+      if (rows.length > 0) {
+        const { error: rErr } = await supabaseAdmin.from("reactions").insert(rows);
+        if (rErr) throw new Error(rErr.message);
+      }
     }
 
     if (data.reflection.trim()) {
