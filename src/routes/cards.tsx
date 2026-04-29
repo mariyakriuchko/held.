@@ -92,14 +92,14 @@ function Cards() {
           <div
             key={card?.id}
             className={cn(
-              "relative w-full transition-opacity duration-300",
+              "w-full transition-opacity duration-300",
               fading ? "opacity-0" : "opacity-100",
             )}
           >
-            {/* cluster watermark */}
+            {/* cluster mark — sits above the text, never behind */}
             <ClusterMark
               category={card.category}
-              className="ink-terracotta/30 pointer-events-none absolute -top-2 right-0 h-10 w-10 opacity-30"
+              className="mb-6 h-8 w-8 text-foreground/40"
             />
 
             <p className="font-serif text-[28px] leading-[1.35] text-foreground sm:text-[32px] sm:leading-[1.3]">
@@ -134,7 +134,7 @@ function Cards() {
               className={cn(
                 "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-all",
                 weighs
-                  ? "border-sage bg-sage/10 ink-sage"
+                  ? "ink-burgundy border-burgundy bg-burgundy/10"
                   : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground",
               )}
               aria-pressed={weighs}

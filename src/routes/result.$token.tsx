@@ -11,13 +11,13 @@ export const Route = createFileRoute("/result/$token")({
   head: ({ loaderData }) => {
     const top = loaderData?.top_categories ?? [];
     const desc = top.length
-      ? `Most of what you carry is ${categoryShort(top[0])}.`
+      ? `Most of what came up is ${categoryShort(top[0])}.`
       : "Two minutes on the invisible part of parenting.";
     return {
       meta: [
-        { title: "what you carry — held" },
+        { title: "here's what came up — held" },
         { name: "description", content: desc },
-        { property: "og:title", content: "what you carry — held" },
+        { property: "og:title", content: "here's what came up — held" },
         { property: "og:description", content: desc },
       ],
     };
@@ -42,7 +42,7 @@ function categoryShort(c: string): string {
     case "deadlines_prep":
       return "the deadlines and the prep";
     case "appointments":
-      return "the appointments quietly slipping";
+      return "the appointments slipping out of view";
     case "social_obligations":
       return "the unwritten social obligations";
     case "daily_logistics":
@@ -72,7 +72,7 @@ function Result() {
   const top = data.top_categories;
   const headline =
     top.length > 0
-      ? `most of what you carry is ${categoryShort(top[0])}.`
+      ? `here's what came up: ${categoryShort(top[0])}.`
       : "you showed up. that already counts.";
   const sub = severitySub(data.dominant_severity, top[0]);
 
