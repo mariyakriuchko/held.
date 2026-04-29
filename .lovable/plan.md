@@ -1,154 +1,153 @@
-## Held (working name) — v0 Plan
+## Realignment
 
-A quiet, honest research tool for parents. Not a quiz. Not a productivity app. A short experience that says *"you're not the only one carrying this"* — and in exchange, captures real signal about what modern parents actually hold in their heads.
+The current prototype is pointed at emotional recognition. The doc points at something different: a **diagnostic** that surfaces *which concrete operational moments* (school comms, deadlines, kid prep, appointments, social obligations) cause the most missed-ness, guilt, and load — across a spectrum from critical to small-but-nagging. That spectrum is the point: it shows what kind of load actually weighs, not just that load exists.
 
-Working name kept as **Held** for now (parked for later revision).
-
----
-
-## What we're optimizing for
-
-One feeling: **"someone finally said it out loud."**
-
-If a parent reaches the end and forwards the link to one other parent with a message like *"this one"* or *"read this"* — v0 worked. Everything else (data, archetypes, growth) follows from that.
+Tone stays warm and non-judging. Content gets concrete and situational. The word "quiet" is removed.
 
 ---
 
-## The flow (5 screens)
+## 1. Card content — full rewrite
 
-```
-Hero  →  Onboarding (3 Qs)  →  Cards (~16)  →  Reflection  →  Result  →  (optional) Coping
-```
+**25 cards across 5 clusters, mixed severity.** Each card a specific recurring moment. Phrasing rule: situation-first when it works, statement-form ("you're tracking…") when it reads more naturally — **never "only you"**. Carry pronouns sparingly; default to describing the moment.
 
-### 1. Hero
-- One sentence, large, lots of breathing room:
-  *"You're carrying more than anyone sees."*
-- Sub: *"A quiet two minutes about the invisible part of parenting. No advice. No score. No fixing."*
-- Single button: **Begin**
-- Tiny line below: *"~2 minutes. Anonymous. We're parents trying to understand parents."*
+Categories (internal):
 
-### 2. Onboarding (3 questions, one screen, no progress bar)
-1. **You are…** Mother / Father / Co-parent or other / Prefer not to say
-2. **How many children?** 1 / 2 / 3+
-3. **Ages** (multi-select chips): 0–2 / 2–4 / 5–7 / 8–10 / 11+
+- `school_comm` — interpreting messages, knowing what needs action
+- `deadlines_prep` — registration, payments, costume day, materials
+- `appointments` — long-range medical, referrals, vaccinations
+- `social_obligations` — gifts, snacks, events, group expectations
+- `daily_logistics` — small recurring stuff (shoes outgrown, library books due)
 
-Rationale for keeping the parent-role question: the mental load gap between mothers and fathers is the single most important variable in this research. Without it, "not my world" from a father and "this is my life" from a mother collapse into noise. It's one tap, and it changes the integrity of every downstream insight.
+**New severity tag** on each card: `critical` / `medium` / `light`. Used internally to balance the deck (e.g. 16 cards = 5 critical + 7 medium + 4 light) and analyze which severity creates strongest "weighs on me" signal.
 
-### 3. Cards (~16 shown from a pool of ~25)
-- One card at a time. Centered. Full attention.
-- Card text is a specific, mundane scenario — not a category label.
-  - *"You're the one who notices the shoes are getting tight."*
-  - *"You wake up already running through tomorrow's logistics."*
-  - *"You remember which friend's birthday party is this weekend, which gift is wrapped, and which one still needs a card."*
-- Three reactions, no icons screaming at you:
-  - **this is my life**
-  - **rarely**
-  - **not my world**
-- Optional fourth micro-action on each card: a small, ghosted *"this one stings"* tap — silent signal, no UI change. High-value research signal for which cards land hardest.
-- Subtle progress: *"4 of 16"* in small muted text. No bar, no gamification.
+Sample rewrites (illustrative — full set drafted in build, reviewed before launch):
 
-### 4. Reflection (one open text field, optional)
-- Prompt: *"What's one thing you carry that wasn't on any card?"*
-- Placeholder: *"Or skip — it's okay."*
-- Skippable. No character counter. No "great answer!" feedback.
+- *School email lands at 9pm. Permission slip needed by tomorrow morning. Printer's out of ink.* (school_comm, medium)
+- *The dentist said "see you in six months" — that was eight months ago.* (appointments, medium)
+- *Costume day is Friday. The email said this two weeks ago.* (deadlines_prep, medium)
+- *Someone in the class chat is collecting for the teacher's gift. €15 by Thursday.* (social_obligations, light)
+- *The indoor shoes are getting tight. No one's said anything yet.* (daily_logistics, light)
+- *Holiday care registration opens Monday. Spots fill in two days.* (deadlines_prep, critical)
+- *The vaccination reminder card has been on the fridge since March.* (appointments, critical)
+- *A WhatsApp poll about next week's outing. Already 14 replies. Yours isn't one of them.* (school_comm, light)
 
-### 5. Result (minimal, one insight)
-- One sentence, hand-written tone, based on top 2–3 categories:
-  - *"Most of what you carry is the noticing — the small things no one else sees coming."*
-- Below it, three soft lines: the categories that came up most for you, in plain language.
-- One quiet line: *"You're not the only one. [N] parents told us the same this week."*
-- Two actions:
-  - **Send this to someone who'd get it** (copies a personal link)
-  - **Read what other parents said** (link to a small public reflections wall — moderated, no names)
-
-### 6. After the result — coping question (optional, framed gently)
-- One screen, appears after result, easy to dismiss.
-- *"Last thing — and only if you want. When the load gets heavy, what actually helps you cope right now?"*
-- Free text + 4 optional chips to make it easier to start: *talking to a friend / time alone / scrolling / nothing really works right now*
-- This is where we learn the gap between what parents need and what's available — critical for whatever Held becomes next. Placing it after the result (not before) protects the emotional arc and still captures the answer from the people who felt seen.
+The full 25 will be drafted in the same edit batch, you review before merge.
 
 ---
 
-## Tone & voice rules (locked)
+## 2. Card UX fixes
 
-- **Permission, not prescription.** Never "you should," "try this," "here's a tip."
-- **Naming what's already true**, not adding tasks.
-- **Lowercase, short sentences, generous whitespace.** Closer to a handwritten note than an app.
-- Words to **never use** in v0: *productivity, optimize, balance, hack, journey, mindful, self-care, score, archetype, level.*
-- Words that belong: *carry, hold, notice, remember, slip, quiet, enough.*
+**Three reactions, plain language, no "only" framing:**
 
----
+- *happens in our house*
+- *rarely*
+- *not the case*
 
-## Visual direction
+**Plus a "skip" link** below the choices on every card (and every onboarding question). Skips count as no-answer in the data, not as a third option.
 
-One sentence: **a quiet room, not a feed.**
+**"This one weighs" — moved up and made obvious:**
 
-- **Palette:** off-white background (warm, paper-like, not pure white), deep ink text, one muted accent (dusty terracotta or soft sage — picked in build). No gradients, no glassmorphism, no shadows-as-decoration.
-- **Typography:** one serif for the cards and hero (something humane like Source Serif or Fraunces), one clean sans for UI. Generous line height. Text is the design.
-- **Imagery:** none in v0. No stock parent photos. No illustrations of smiling families. The absence of imagery *is* the statement — this is not Instagram parenting.
-- **Motion:** slow, almost imperceptible. Cards fade between, don't slide. No bounces, no confetti, no "✨". Reactions register with a gentle dim, not a celebration.
-- **Layout:** mobile-first, single column, max ~520px content width even on desktop. The product should feel the same on a phone in bed at 11pm as on a laptop.
-- **What it must NOT feel like:** a quiz, a wellness app, a corporate survey, a Calm/Headspace clone, a BuzzFeed result page.
-- **What it should feel like:** the second page of a thoughtful book. A friend's text. A pause.
+- A small icon button (Lucide `Bookmark` or a hand-drawn dot mark) sits **inline with the reaction buttons**, top-right of the card area, with a one-word label *"weighs"* underneath
+- Tap toggles a filled state with a soft color shift
+- Tooltip on hover / first-time helper text underneath: *"tap if this one sticks with you"*
+- Tappable before, during, or after picking a reaction — independent signal
+- Renamed in code from `stings` → `weighs` (less dramatic, matches the doc's language about cognitive load)
 
 ---
 
-## Data model (Lovable Cloud / Supabase)
+## 3. Onboarding fixes
 
-```
-sessions     (id, token, parent_role, num_children, age_bands[], created_at, channel)
-cards        (id, category, scenario, age_tags[], role_tags[])
-reactions    (session_id, card_id, reaction, stings boolean, created_at)
-reflections  (session_id, text, created_at)
-coping       (session_id, text, chips[], created_at)
-shares       (session_id, channel, created_at)   // for attribution
-```
-
-No accounts. Session token in a cookie. Public result page at `/r/<token>` with strong OG meta for shares.
+- Add **"skip"** option / link to every question
+- Keep parent role question (mother / father / co-parent / prefer not to say)
+- Drop the line "so the cards can find you" (too cute, slightly creepy)
+- New header: *"three quick questions before we start"* — neutral, no "quiet"
 
 ---
 
-## Card seed (~25 cards across categories)
+## 4. Copy sweep — remove "quiet"
 
-Categories (internal, never shown to user): *noticing, remembering, anticipating, soothing, mediating, logistics, identity-loss, invisible-decisions.*
+Pass through every screen and replace:
 
-Cards drafted in build, reviewed together before launch. Goal: every card should make at least one parent in our test group quietly say "yeah."
-
----
-
-## Out of scope for v0 (explicit)
-
-- Archetypes, heatmaps, comparison charts
-- Email capture as a gate (we'll add a soft optional capture on the result page only)
-- Auth, accounts, history
-- Image-card sharing (OG meta only)
-- Localization (English only)
-- Admin dashboard (we'll read data via Supabase directly for week 1)
+- Hero sub: *"A quiet two minutes about the invisible part of parenting"* → *"Two minutes on the invisible part of parenting. No advice, no score, no fixing."*
+- `/begin` heading: *"first, three quiet questions"* → *"three quick questions before we start"*
+- Loading state: *"a moment…"* → *"loading…"*
+- Footer: *"held · anonymous"* → *"anonymous · we're parents trying to understand parents"*
+- Any other instance of "quiet/quietly" — gone
 
 ---
 
-## Success signals for week 1
+## 5. Visual direction — color + texture + hand-drawn marks
 
-1. **Completion rate** above 60% from card 1 to result.
-2. **Forward rate**: % of finishers who copy the share link.
-3. **Reflection fill rate**: % who write something in the open field. This is the resonance proxy.
-4. **"Stings" taps per session**: tells us which cards do the real work.
-5. **Qualitative**: read every reflection by hand for the first 200 sessions.
+**Palette additions (still warm, paper-based):**
+
+- Keep paper off-white background but add a subtle SVG paper-grain texture at ~4% opacity, fixed to body
+- Keep dusty-terracotta as primary accent
+- **Add second accent:** muted sage green (`oklch(0.62 0.06 145)`) — used sparingly for the "weighs" filled state and category dots
+- **Add tertiary warm:** soft mustard (`oklch(0.78 0.09 85)`) — used only for emphasized words in headings (one or two per screen, max)
+
+**Typography gets bolder:**
+
+- Hero heading scales up (5xl → 6xl on desktop) with selective color emphasis on one phrase
+- Card text stays Fraunces serif but at 28–32px with tighter leading; bigger on desktop than today
+- Add a small sans-serif eyebrow label above each card showing its severity in plain language: *"happens often"* / *"the small stuff"* / *"the big slips"* — gives texture without revealing the analytical category
+
+**Hand-drawn marks (SVG, inline, hand-sketched look):**
+
+- A small hand-drawn mark per cluster, shown as a tiny watermark in the card corner: a shoe, a calendar X, a stethoscope, a gift box, a coffee cup
+- One hand-drawn underline mark on the hero's emphasized word
+- A hand-drawn dot/asterisk used as the toggle icon for "weighs"
+- Source: generate as inline SVG paths (no external deps), kept in `src/components/held/marks/`
+
+**Motion:** unchanged — soft fades, no bounces.
 
 ---
 
-## Technical notes (for build)
+## 6. Data model changes
 
-- TanStack Start, file-based routes: `/`, `/begin`, `/cards`, `/reflect`, `/result/$token`, `/r/$token` (public), `/wall`.
-- Cards served from DB, shuffled per session with age/role weighting.
-- Result page server-rendered with per-token OG meta tags.
-- All reactions written optimistically; no loading spinners in the card flow.
-- Mobile-first, no layout shift, no font flash (preload the serif).
+Migration to add:
+
+- `cards.severity` text column (`critical` / `medium` / `light`), default `medium`
+- Rename `reactions.stings` → `reactions.weighs` (boolean, default false)
+- Allow `reactions.reaction` to accept value `'skip'` (no schema change, just a new allowed string)
+- Allow onboarding fields to be null (already nullable in schema — confirm and handle in client)
+
+Re-seed the `cards` table with the rewritten 25-card set (truncate + insert).
 
 ---
 
-## What I need from you next (after approval)
+## 7. File-level technical changes
 
-1. Sign-off on the parent-role question staying in onboarding.
-2. A pass on the 25 card scenarios once drafted — your ear for what's real matters more than mine here.
-3. A working name decision (parked — we ship under "Held" and revisit before any external sharing).
+- `**supabase/migrations/<new>.sql**` — add `severity` column, rename `stings` → `weighs`, truncate + reseed cards with new content + severity + cluster tags
+- `**src/integrations/supabase/types.ts**` — auto-regenerated, no manual edit
+- `**src/lib/session.ts**` — rename `stings` → `weighs` on the reaction shape; add `'skip'` to `Reaction` union; allow nullable onboarding values
+- `**src/server/held.functions.ts**` — `getDeck()` updated to balance by severity (5 critical + 7 medium + 4 light), still weighted by parent role / age bands; saving reactions writes `weighs` instead of `stings`; result aggregation tallies top **clusters × severity** so the result line can say e.g. *"the small daily stuff is what's adding up for you"* vs *"it's the big slips that weigh"*
+- `**src/styles.css**` — add sage + mustard tokens, add paper-grain background, scale up serif sizes
+- `**src/components/held/Shell.tsx**` — add fixed paper-grain layer, update footer copy
+- `**src/components/held/marks/**` (new) — 6 inline-SVG hand-drawn mark components (Shoe, Calendar, Stethoscope, Gift, Cup, Underline, Dot)
+- `**src/routes/index.tsx**` — bigger hero, color emphasis on one phrase, hand-drawn underline, copy update
+- `**src/routes/begin.tsx**` — add skip link per question, remove "quiet", new header
+- `**src/routes/cards.tsx**` — new layout: severity eyebrow + cluster mark + card text + 3 reactions + skip link; "weighs" button moved inline near choices with clear label and helper text on first card; rename `stings` references; drop "quiet" loading copy
+- `**src/routes/reflect.tsx**` — copy sweep, add explicit skip button (not just empty submit)
+- `**src/routes/result.$token.tsx**` — result sentence now reflects severity pattern, not just category; copy sweep
+- `**src/routes/r.$token.tsx**` — copy sweep on OG meta
+
+---
+
+## 8. Out of scope (still)
+
+- Auth / accounts
+- Email capture
+- Reflections wall
+- Localization
+- Image-based share cards
+- Working name change ("Held" stays for now)
+
+---
+
+## What I'll bring back to you for sign-off after build
+
+1. The full 25-card list with cluster + severity tags, before the migration runs
+2. A screenshot of the new card screen so you can react to the visual direction before I touch every other route
+3. The exact result-page sentence templates (one per dominant pattern)
+
+If any of the 8 sections above need adjustment, push back now — once approved I'll build it in one pass.

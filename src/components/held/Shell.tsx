@@ -10,8 +10,10 @@ export function Shell({ children, className }: { children: React.ReactNode; clas
         className,
       )}
     >
-      <div className="flex w-full max-w-[520px] flex-1 flex-col">{children}</div>
-      <footer className="mt-16 text-center text-xs text-muted-foreground">held · anonymous</footer>
+      <div className="flex w-full max-w-[560px] flex-1 flex-col">{children}</div>
+      <footer className="mt-16 text-center text-xs text-muted-foreground">
+        anonymous · we're parents trying to understand parents
+      </footer>
     </main>
   );
 }
