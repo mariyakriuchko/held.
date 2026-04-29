@@ -30,9 +30,7 @@ function Hero() {
         </div>
 
         <p className="mt-12 text-xs leading-relaxed text-muted-foreground">
-          About two minutes. Anonymous.
-          <br />
-          Skip anything you don't want to answer.
+          Anonymous. Skip anything you don't want to answer.
         </p>
       </div>
     </Shell>
