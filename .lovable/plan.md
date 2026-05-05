@@ -1,57 +1,75 @@
-## Goal
+# Roadmap — fix the critical gaps, one step at a time
 
-Answer three questions a first-time visitor silently asks — *what is this, why me, what do I get* — without turning the landing into a wall of text. Keep the emotional hook as the headline; add one quiet structural beat underneath.
+We'll tackle the four blockers from the critical review in order of impact. Each step is a self-contained shippable change so we can pause, review, and adjust between them.
 
-## Proposed new landing copy
+---
 
-```
-you're carrying more than anyone sees.            ← unchanged headline
+## Step 1 — Stronger result page (highest impact)
 
-Two minutes on the invisible part of parenting.   ← unchanged sub
-No advice. No score. No fixing.
+**Goal:** turn the result from a single label into a real "shape of your load" that feels worth sharing.
 
-──────  what happens  ──────                       ← tiny eyebrow label, muted
+What changes on `/result/$token`:
+- **Severity profile**: aggregate the user's `weighs=true` reactions by `cards.severity` (low / medium / high) and show a small 3-bar breakdown ("3 heavy · 5 medium · 2 light").
+- **Category breakdown**: group weighed cards by `cards.category`, show top 3 ("school logistics · sleep · admin").
+- **Comparison stat**: for the user's top-weighed card, compute "X out of last 100 parents also flagged this" from `reactions` table. Falls back gracefully if sample is small.
+- **Keep** the existing label + session count, but reframe as supporting context.
 
-Small moments. The school email at 9pm.
-The dentist appointment you keep meaning to book. Summer sneakers should have be ordered a week ago.
-You say which ones happen in your house — and which ones weigh.
+Technical:
+- New server fn `getResultProfile(token)` in `src/server/held.functions.ts` — does the joins/aggregations server-side.
+- Update `src/routes/result.$token.tsx` to render the new sections with the same calm serif aesthetic.
+- No schema changes needed.
 
-At the end you see the shape of what you're carrying,
-and how it compares to other parents.
+---
 
-[ begin ]                                          ← unchanged button
+## Step 2 — Email capture ("tell me when there's more")
 
-Anonymous. Skip anything. Built by parents trying to
-understand parents — your answers help the picture.
-```
+**Goal:** give users a return path so the "stay tuned" promise is real.
 
-Three short beats added, ~50 words total. The page still fits in one viewport on desktop and stays in the same hush.
+- Soft, optional input at the bottom of the result page: *"want to hear when we add new things? leave your email."* No account, no password.
+- New table `subscribers` (`id`, `email` unique, `session_id` nullable, `created_at`). RLS: public INSERT only, no SELECT.
+- Server fn `subscribeEmail({ email, sessionId })` with basic email validation + duplicate-safe insert.
+- Same input also appears on the new About page (Step 4 dependency, optional now).
 
-## What each beat does
+---
 
-1. **"Sixteen small moments…"** — answers *what actually happens*. Two concrete examples (school email, dentist) immediately ground it; the reader recognises themselves before they've clicked anything.
-2. **"At the end you see the shape…"** — answers *what's in it for me*. Promises recognition + comparison, which is the actual payoff of the diagnostic, without overpromising "insight" or "results."
-3. **"Built by parents… your answers help the picture"** — answers *who's behind this and why should I bother*. Reframes the session as participation in something, not a self-test. Replaces the current footnote which only said "anonymous, skip anything."
+## Step 3 — Personalized deck (make onboarding matter)
 
-## Visual treatment
+**Goal:** the role/age questions currently do nothing — fix that.
 
-- The "what happens" block sits between the sub-paragraph and the button, separated by a thin muted eyebrow label (small caps, `text-muted-foreground`, similar weight to the existing footer).
-- Two short paragraphs, generous leading, same `text-foreground/80` as the existing sub.
-- The closing line replaces the current "Anonymous. Skip anything you don't want to answer." — it carries that meaning plus the *why*.
-- No new colors, no new fonts, no images. Same calm.
-- One small editorial flourish: the word "shape" in the second beat gets the `.underline-hand` accent, mirroring the headline's "anyone sees" and tying the promise visually back to the hook.
+- Update `getDeck` in `src/server/held.functions.ts` to filter `cards` where:
+  - `role_tags` overlaps the session's `parent_role` (or empty array = applies to all)
+  - `age_tags` overlaps the session's `age_bands` (or empty = all)
+- Fallback: if filtered deck < N cards, top up with general cards so flow never breaks.
+- No UI changes; the onboarding answers start mattering immediately.
 
-## Files to change
+---
 
-- `src/routes/index.tsx` — insert the new block between the existing sub-paragraph and the `Link to="/begin"`; replace the trailing micro-copy line.
+## Step 4 — Internal dashboard (evidence to iterate)
 
-That's it — one file, no new components, no migrations.
+**Goal:** a private page to see what's actually happening.
 
-## Two phrasings I'd want you to pick between before I build
+- New route `/admin` gated by a single shared password (env var `ADMIN_PASSWORD`), stored in sessionStorage after entry. Not user accounts — just a soft gate for the team.
+- Server fn `getAdminStats()` returns:
+  - sessions per day (last 30 days)
+  - top 10 most-weighed cards
+  - top 10 most-skipped cards
+  - drop-off: % of sessions that finish the deck vs. abandon
+  - email signups count
+- Renders as plain tables/sparklines — function over form.
 
-I'll ask once before editing:
+---
 
-- The middle beat could be **"how it compares to other parents"** (community framing — softer, more research-y) or **"what tends to weigh most for parents like you"** (personalised framing — feels more like a result *for you*). They aim at different motivations.
-- The closing line could lean **research** ("your answers help the picture") or **solidarity** ("you're not the only one tracking all this"). Both fit the tone; they pull the reader toward different reasons to start.
+## Out of scope (for now)
+- Rate-limiting on public INSERTs — note it as a follow-up; current volume doesn't warrant infra yet.
+- SEO/discovery surfaces — separate workstream once the product loop is tighter.
+- About page + analytics from the previous plan — we can fold those in after Step 2 if you want, or before. Let me know.
 
-I'll ask you those two as a quick multiple-choice once you approve the structure.
+---
+
+## Suggested order of execution
+1. Step 1 (result page) — biggest perceived value jump
+2. Step 2 (email capture) — unlocks retention
+3. Step 3 (personalized deck) — closes the onboarding loop
+4. Step 4 (admin dashboard) — gives us data to decide what's next
+
+Approve and I'll start with Step 1 only. We review before moving to Step 2.
