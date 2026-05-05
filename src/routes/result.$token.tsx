@@ -184,6 +184,42 @@ function Result() {
   );
 }
 
+function SeverityBars({
+  counts,
+}: {
+  counts: { critical: number; medium: number; light: number };
+}) {
+  const total = counts.critical + counts.medium + counts.light;
+  const rows: Array<{ key: keyof typeof counts; label: string; count: number }> = [
+    { key: "critical", label: "heavy", count: counts.critical },
+    { key: "medium", label: "medium", count: counts.medium },
+    { key: "light", label: "light", count: counts.light },
+  ];
+  return (
+    <div className="mt-4 space-y-2">
+      {rows.map((r) => {
+        const pct = total > 0 ? Math.round((r.count / total) * 100) : 0;
+        return (
+          <div key={r.key} className="flex items-center gap-3">
+            <span className="w-16 font-serif text-sm text-muted-foreground">
+              {r.label}
+            </span>
+            <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-muted">
+              <div
+                className="absolute inset-y-0 left-0 bg-foreground/80"
+                style={{ width: `${pct}%` }}
+              />
+            </div>
+            <span className="w-8 text-right font-serif text-sm text-foreground">
+              {r.count}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 const CHIPS = [
   "talking to a friend",
   "time alone",
