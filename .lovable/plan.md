@@ -1,59 +1,68 @@
 ## Changes
 
-### 1. Headline prompt — force the subject
+### 1. Card signature — match the logo
 
-In `src/server/held.functions.ts`, update the `generateHeadline` system prompt so the sentence **must** begin with `you`, `you're`, or `you've`. The model has been dropping the subject (e.g. *"the one who sees the next step…"*) — fix it explicitly and give it varied opening templates to choose from.
+The site logo is just lowercase serif `held.` with a trailing dot — there's no graphic. The card currently shows `— HELD` in caps, which clashes.
 
-New constraint added to the prompt:
-
-- "the sentence MUST start with the word 'you' or 'you're' or 'you've' — never drop the subject, never start with 'the one'."
-- Varied opening examples: `"you're the one who…"`, `"you remember…"`, `"you've been holding…"`, `"you keep track of…"`.
-
-Also wipe cached headlines again so existing sessions regenerate cleanly:
-
-```sql
-update public.sessions set headline = null;
-```
-
-### 2. CTA — email primary, share secondary
-
-In `src/routes/result.$token.tsx`, restructure `ShareAndEmail` so the page has **one clear primary action**:
-
-- **Primary:** email field + "keep me posted" button (full-width, sits directly under the headline card).
-- **Secondary:** small text link below — `"or send this to someone who'd get it →"` — which still triggers the share/copy flow.
-
-Layout:
+Fix: replace the all-caps signature with the same lowercase serif treatment as the header logo.
 
 ```text
-[ your email — for what comes next ]  [ keep me posted ]
-
-         or send this to someone who'd get it →
+                                                — held.
 ```
 
-When email is submitted successfully, the share link stays available (still useful, just not primary). When share copies the link, show "link copied" inline next to the secondary link.
+- lowercase, serif (Fraunces), muted-foreground color
+- trailing `.` in foreground color (matches header)
+- no tracking/uppercase
+- right-aligned, small (`text-sm`)
 
-### 3. Social proof line rephrase
+(A graphic logo or grey-scale variant would compete with the headline; matching the typographic logo as a quiet signature keeps the card clean and shareable.)
 
-In `src/routes/result.$token.tsx`, replace:
+### 2. Re-add the share link below the card
 
-> "14 parents sat with these cards this week."
+User insight: people are sharing the **card itself**, so the share affordance belongs adjacent to the card — not buried after the email form.
 
-with:
+Layout becomes:
 
-> **"14 other parents recornized themselves in these cards this week."**
+```text
+┌────── headline card ──────┐
+│   "you're the one who…"   │
+│                   — held. │
+└───────────────────────────┘
 
-(Singular form: "1 other parent saw themselves in these cards this week.")
+       send this to someone who'd get it →
 
-This ties directly to the "yes, that's me" goal of the headline — reinforces recognition + freshness, removes the vague "sat".
+──────── (small spacer) ────────
+
+we're building a quiet support system for parents
+carrying the invisible load. it's early, and we
+care deeply about what it becomes — leave your
+email and we'll keep you in the loop.
+
+[ your email ]              [ keep me posted ]
+```
+
+So:
+
+- **Right under the card:** small centered share link `"send this to someone who'd get it →"` (becomes `"link copied"` on click).
+- **Then a short spacer.**
+- **Then the mission statement** (see #3) immediately followed by the email field + button.
+
+The bottom "or send this to someone…" link is removed (it's now above, near the card).
+
+### 3. Mission statement above the email
+
+Add a short paragraph between the share link and the email form. Copy:
+
+> we're building a support system for parents carrying the invisible load. these things take time to build well — and we care deeply about what this becomes. leave your email and we'll keep you in the loop.
+
+Style: small, calm, muted-foreground, serif, max ~2 lines wide so it doesn't feel like marketing copy.
 
 ## Files
 
 
-| File                                              | Change                                                                                         |
-| ------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `src/server/held.functions.ts`                    | Tighten headline prompt to require `you`-prefix subject.                                       |
-| `supabase/migrations/<ts>_reset_headlines_v2.sql` | `update public.sessions set headline = null;`                                                  |
-| `src/routes/result.$token.tsx`                    | Restructure `ShareAndEmail` (email primary, share secondary link); rephrase social-proof line. |
+| File                           | Change                                                                                                                                                                                |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/routes/result.$token.tsx` | Card signature → lowercase serif `— held.`; move share link to directly under the card; add mission-statement paragraph above the email form; remove the duplicate bottom share link. |
 
 
-No new dependencies, no schema changes.
+No prompt or DB changes this round.
