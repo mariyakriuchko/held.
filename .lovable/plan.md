@@ -1,35 +1,61 @@
-# Structural & brand polish
+# Logo color fix + type & spacing tightening
 
-Hero copy stays as-is. Changes below are structural, brand, and metadata only.
+## 1. Header logo — ink wordmark, green dot
 
-## 1. Header logo — drop wavy underline (`src/components/held/Shell.tsx`)
+`src/components/held/Shell.tsx`: swap the header so "held" renders in ink (default `text-foreground`) and the dot in green (`ink-accent`). Matches the brand assets, favicon, and OG image — single accent spent intentionally on the dot.
 
-Remove the `underline-hand` class from the header "held" wordmark so the header matches the official Mark B (clean wordmark + green dot). The hand-underline stays available as a content device — still used inside the H1 on "anyone sees".
+```
+<span>held</span>
+<span aria-hidden className="ml-0.5 ink-accent">.</span>
+```
 
-## 2. Eyebrow relabel (`src/routes/index.tsx`)
+## 2. Type system — collapse to 5 roles
 
-Change the small-caps label above the example block from `what you'll do` to `what this is`. Body copy underneath stays the same.
+Define a clear 5-role scale and apply it consistently. No new font files; uses Fraunces + Inter already loaded.
 
-## 3. Footer copyright (`src/components/held/Shell.tsx`)
+| Role | Family | Size | Color | Used for |
+|---|---|---|---|---|
+| Display | serif | text-5xl / sm:text-6xl | foreground | H1 only |
+| Sub | serif | text-2xl, leading-snug | foreground/80 | Paragraph under H1 |
+| Body | sans | text-base, leading-relaxed | foreground/80 | Example block, prose |
+| Label | sans | text-[11px] uppercase tracking-[0.18em] | muted | Eyebrow only |
+| Meta | sans | text-xs | muted | Header nav link, footer |
 
-Add `© 2026 held.` as a second line under the existing footer row, same muted styling.
+Concrete edits:
 
-## 4. Favicon + OG image (`src/routes/__root.tsx`)
+- **Header "about us" / "begin" link** (`Shell.tsx`): change from `font-serif text-sm` → `text-xs` (sans). Frees serif for content voice.
+- **Sub paragraph** (`index.tsx`): change from `text-lg` (sans) → `font-serif text-2xl leading-snug`. Promotes it into the H1's voice family, removes one sans size.
+- **Button** (`index.tsx`): change from `font-serif text-xl` → `font-serif text-lg`. Keeps serif (intentional brand moment) but shares the sub's serif size band instead of inventing a 4th serif size.
+- **Bottom footnote** (`index.tsx`): remove. Its content ("anonymous", "built by parents") already lives in the footer; "skip anything" is implicit and was getting redundant.
+- **Eyebrow + example body**: unchanged — already on-scale.
 
-Wire the brand assets already in `public/brand/`:
+## 3. Spacing — two values only
 
-- `<link rel="icon" type="image/png" sizes="32x32" href="/brand/held-mark-d-32.png">`
-- `<link rel="icon" type="image/png" sizes="16x16" href="/brand/held-mark-d-16.png">`
-- `<link rel="apple-touch-icon" sizes="180x180" href="/brand/held-mark-d-180.png">`
-- `og:image` → `/brand/held-og-1200x630.png`
-- Upgrade `twitter:card` from `summary` to `summary_large_image`
+Replace the four near-identical gaps (`mt-10`, three × `mt-12`, `mt-16`) with two:
 
-Existing title/description meta stays unchanged (matches current hero voice).
+- `mt-10` for tight relationship (H1 → sub, sub → promise area)
+- `mt-16` for major section break (promise → "what this is" block, block → button)
+
+Concrete in `index.tsx`:
+- H1 → sub: `mt-10` (was `mt-10` ✓)
+- Promise line: collapse into the same paragraph as sub (no gap), OR keep as separate paragraph with `mt-6` — pick one. Plan: keep as a separate paragraph with `mt-6` so the triple-negative still lands as its own beat, but visually grouped with the sub.
+- Sub block → "what this is" block: `mt-16` (was `mt-12`)
+- "what this is" block → button: `mt-16` (was `mt-12`)
+- Remove bottom footnote and its `mt-12` entirely.
+
+## 4. Footer — single line with copyright
+
+`Shell.tsx`: collapse the two-row footer (added last turn) back to one line, since the bottom footnote in the hero is being removed and the footer is now the only meta surface. New shape:
+
+```
+held · anonymous · about us · privacy · © 2026
+```
+
+One row, `text-xs text-muted-foreground`, separators with `·`.
 
 ## Files touched
 
-- `src/components/held/Shell.tsx` — remove header underline, add footer copyright
-- `src/routes/index.tsx` — eyebrow label
-- `src/routes/__root.tsx` — favicon links, OG image, twitter card type
+- `src/components/held/Shell.tsx` — logo color swap, header link → sans/xs, footer single line with copyright
+- `src/routes/index.tsx` — sub → serif 2xl, button → serif lg, remove bottom footnote, normalize spacing
 
-No new dependencies, no route changes, no backend, no hero copy changes.
+No CSS token changes, no new dependencies, no hero copy changes.
