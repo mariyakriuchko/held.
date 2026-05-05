@@ -1,97 +1,214 @@
-## Save the honest read-out into `.lovable/backlog.md`
+## About page + Privacy page (with editable copy file)
 
-Append the full assessment to the existing backlog file as a new dated section, so each blocker becomes a referenceable item we can work through one by one.
+Two new routes. About is warm and human; Privacy carries the GDPR-required detail. **All privacy copy lives in a single editable file** so you can edit prose directly without touching React.
 
-### File change
-
-`.lovable/backlog.md` — append below the existing "coping prompt" section:
-
-```markdown
 ---
 
-## Honest read of where Held is — 2026-05-05
+### 1. `/about` — `src/routes/about.tsx`
 
-Reference assessment. Each numbered blocker below is a candidate work item;
-we'll convert them into individual plans as we pick them up.
+Single calm screen, same `Shell` + Fraunces voice as homepage.
 
-### What the product is supposed to do
-A two-minute, no-advice, no-score reflective experience that makes the
-invisible mental load of parenting visible — and is supposed to grow into a
-"system that anticipates and supports". Current funnel:
-landing → onboarding → cards → reflection → result → share.
+```text
+held.                                      about
 
-### What's working
-- **Tone & craft.** Writing, typography, paper aesthetic, restraint. Strongest
-  asset — do not dilute.
-- **Funnel is end-to-end.** Onboarding, deck, reactions, reflection, result,
-  share, coping all wired to the DB. 13 sessions / 50 reactions in.
-- **Tech foundation is clean.** Server functions, RLS, no admin-key leaks,
-  sensible schema.
+we're a family of five
+trying to understand
+what it takes.
 
-### Blockers (ranked)
+──── who ────
+expats in berlin, both working parents, three kids
+— 4, 8, and 12. twelve years in the city. we've
+lived it all with them from birth toward teenage
+years (almost there). we know, in our bones, what
+it takes to raise kids in germany — and in a big
+city specifically.
 
-1. **Result page doesn't deliver on the headline promise.**
-   Promise: "you see the shape of what you're carrying, and how it compares
-   to other parents." Reality: one category label + a count. Not a shape, not
-   a comparison. Biggest single risk to retention/sharing/monetisation.
+──── why ────
+we're on a mission to recognise the effort and
+the strength it takes. and, based on everything
+we've lived, to build a help system that
+anticipates and supports.
 
-2. **There is no "next" — and we've told the user there will be one.**
-   About says "stay tuned." Result says "start again." No email capture, no
-   account, no return path. Every visitor is one-shot. Add a soft email
-   capture on the result page. *(partially addressed — keep validating.)*
+not a planner. not a to-do list. not a calendar.
 
-3. **Card deck is too small and too static.**
-   ~64% of the deck served per session; re-visits feel repetitive. Cards
-   aren't personalised by `role_tags` / `age_tags` even though the columns
-   exist. Either use the tags or remove the onboarding (currently theatre).
+──── your data ────
+held is anonymous. we never share or sell your
+answers. the patterns we see are used only to
+build a more meaningful product for parents like
+us. full details: privacy.
 
-4. **Collecting data with no way to look at it.**
-   No internal view. Can't answer "which cards resonate?", "what are parents
-   writing in?", "where do they drop off?". Minimal password-gated admin page
-   reading aggregates would unblock every future product decision.
+──── what's next ────
+stay tuned. these things take time to build well —
+and we care deeply about what this becomes. leave
+your email and we'll keep you in the loop.
 
-5. **"Comparison to other parents" is a hollow number.**
-   `parents_this_week` is a count, not a comparison. Real version: "7 in 10
-   parents who took this also flagged 'school messages' as weighing." Data
-   exists to compute it.
-
-6. **Mobile / one-handed reality is unverified.**
-   Card screen, reflect textarea, share sheet, copy-to-clipboard fallback
-   all need a real phone pass at 10pm-in-bed conditions.
-
-7. **About page is a values statement, not a proof of trust.**
-   No faces, no names, no contact, no explicit privacy statement, no "what
-   we do with your answers." The "anonymous" promise lives in the footer;
-   it should be explicit on About.
-
-8. **Anti-spam / abuse is missing.**
-   Public INSERT on `sessions`, `reactions`, `reflections`, `coping` with no
-   rate limit, no captcha. One script can poison the dataset (and the
-   comparison stat we eventually build on it). Cheap now, painful later.
-
-9. **SEO / discovery is undefined.**
-   No sitemap, no structured data, no content surface, no target keyword.
-   "Mental load parenting" is a real search; held isn't on it. Growth is
-   100% word-of-mouth via share — which only fires after a strong result
-   (see #1).
-
-10. **Product thesis is still a diagnostic, not a "system".**
-    About promises anticipation and support. Today held is a one-shot
-    diagnostic — no second session, no memory, no anticipation. Fine as MVP
-    positioning, but every roadmap item should be evaluated against "does
-    this move us from diagnostic to system?"
-
-### Suggested order of attack
-1. Stronger result page (multi-dimensional: top categories %, severity
-   sentence, what weighs, one real comparison stat).
-2. Email capture on result. *(in progress)*
-3. Personalise the deck by `role_tags` / `age_tags`.
-4. Internal data view.
-5. Grow the deck to ~40–60 cards.
-6. Rate limiting + basic abuse protection before any growth push.
-7. Then: saved sessions, returning users, gentle weekly check-ins.
+[ your email ]            [ keep me posted ]
 ```
 
-### Out of scope for this step
-- No code changes, no DB changes.
-- We're just persisting the document so we can pick items off it next.
+- Eyebrows `who` / `why` / `your data` / `what's next`: `text-[11px] uppercase tracking-[0.18em] text-muted-foreground`.
+- "not a planner. not a to-do list. not a calendar." — italic Fraunces, slightly larger, muted.
+- "privacy" → `Link to="/privacy"`, ink-accent underline.
+- Email block reuses the result-page form; writes to `subscribers` with `source: "about"`.
+- `head()`: per-route title / description / og tags.
+
+---
+
+### 2. Editable privacy copy — `src/content/privacy.ts`
+
+Plain TypeScript module exporting structured content. **This is the only file you need to touch to edit the privacy text.**
+
+```ts
+// src/content/privacy.ts
+export const privacyMeta = {
+  title: "privacy — held.",
+  description: "how held handles your data. anonymous by design.",
+  lastUpdated: "2026-05-05",
+};
+
+export const privacyIntro = `
+held is built by parents, for parents. this page explains
+what we collect, what we don't, and what your rights are.
+plain language first; legal details below.
+`;
+
+export const privacySections = [
+  {
+    eyebrow: "who runs held",
+    body: `
+      held is run by [TODO: founder names].
+      contact: [TODO: hello@held.tld].
+      address: [TODO: berlin postal address].
+    `,
+  },
+  {
+    eyebrow: "what we collect",
+    body: `
+      an anonymous session id, your card reactions, optional
+      reflection text, optional coping note, and your email
+      only if you choose to leave one.
+    `,
+  },
+  {
+    eyebrow: "what we don't collect",
+    body: `
+      no account. no name. no ad tracking. no third-party
+      analytics. no cookies beyond what's strictly needed
+      for the app to work.
+    `,
+  },
+  {
+    eyebrow: "legal basis (GDPR art. 6)",
+    body: `
+      legitimate interest for anonymous product analytics;
+      explicit consent for the optional email signup.
+    `,
+  },
+  {
+    eyebrow: "how we use it",
+    body: `
+      to show you your result, to compute aggregate patterns
+      shown to other parents, and to improve the cards. your
+      email is used only to send occasional product updates.
+      we never share or sell your data.
+    `,
+  },
+  {
+    eyebrow: "how long we keep it",
+    body: `
+      anonymous reactions are kept indefinitely as part of the
+      aggregate. emails are kept until you ask us to remove them.
+    `,
+  },
+  {
+    eyebrow: "who we share it with",
+    body: `
+      nobody. data is hosted on Lovable Cloud (Supabase, EU
+      region) as our processor. we never sell or share data.
+    `,
+  },
+  {
+    eyebrow: "your rights (GDPR art. 15–22)",
+    body: `
+      access, rectification, erasure, portability, objection,
+      and the right to withdraw consent. to exercise any of
+      these, email [TODO: hello@held.tld].
+    `,
+  },
+  {
+    eyebrow: "complaints",
+    body: `
+      you can lodge a complaint with your local data protection
+      authority. in germany, that's the BfDI or your state DPA.
+    `,
+  },
+  {
+    eyebrow: "changes",
+    body: `
+      last updated [see top]. we'll note any material changes
+      here and on the homepage.
+    `,
+  },
+] as const;
+```
+
+Edit headings via `eyebrow`, prose via `body`. Add or remove sections by editing the array. No React knowledge needed.
+
+---
+
+### 3. `/privacy` — `src/routes/privacy.tsx`
+
+Thin shell. Imports from `src/content/privacy.ts` and renders the array.
+
+```tsx
+// pseudo-shape
+import { privacyMeta, privacyIntro, privacySections } from "@/content/privacy";
+
+// head() uses privacyMeta
+// renders: headline → lastUpdated stamp → intro → sections.map(...)
+```
+
+- Headline: `privacy.` (Fraunces, large, ink-accent dot).
+- Each section: small uppercase eyebrow + body paragraph(s), same rhythm as About.
+- `lastUpdated` shown as small muted text under the headline.
+
+---
+
+### 4. Header + footer — `src/components/held/Shell.tsx`
+
+- **Header:** small lowercase serif link on the right opposite `held.`:
+  - on `/` and most routes → `about`
+  - on `/about` → `begin` (links to `/`)
+  - `text-sm text-muted-foreground hover:text-foreground`, no underline.
+- **Footer:**
+  ```
+  held · anonymous · parents trying to understand parents · about · privacy
+  ```
+  `about` and `privacy` are `Link`s, muted-foreground.
+
+---
+
+### 5. Server function — `src/server/held.functions.ts`
+
+Confirm `subscribeEmail` accepts an optional `source` string and writes to `subscribers.source` (column already exists). If missing, add it. No DB migration.
+
+---
+
+### Files
+
+| File | Change |
+| --- | --- |
+| `src/routes/about.tsx` | New route. |
+| `src/content/privacy.ts` | New file — all privacy copy lives here. |
+| `src/routes/privacy.tsx` | New route — thin renderer over the content file. |
+| `src/components/held/Shell.tsx` | Header `about`/`begin` link; footer `about` + `privacy` links. |
+| `src/server/held.functions.ts` | Ensure `subscribeEmail` supports `source: "about"`. |
+
+### Out of scope
+
+- Impressum (German legal page) — depends on legal entity; flagged as follow-up.
+- Cookie banner — not needed today (no non-essential cookies).
+- No DB changes.
+
+### Before publishing (you, not Lovable)
+
+`src/content/privacy.ts` contains `[TODO: …]` markers for founder names, contact email, and postal address. Fill these in before sharing the site publicly.
