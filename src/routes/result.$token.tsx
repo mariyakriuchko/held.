@@ -80,13 +80,23 @@ function Result() {
     data.headline ?? fallbackHeadline(data.top_categories[0], data.dominant_severity);
   const top = data.top_categories;
 
-  const hasDetails =
+  const sevTotal =
     data.severity_counts.critical +
-      data.severity_counts.medium +
-      data.severity_counts.light >
-      0 ||
-    top.length > 1 ||
-    (data.top_card_comparison && data.top_card_comparison.also_flagged >= 1);
+    data.severity_counts.medium +
+    data.severity_counts.light;
+
+  const catDetailed = data.top_categories_detailed ?? [];
+  const catTotal = catDetailed.reduce((acc, c) => acc + c.count, 0);
+
+  const yourWeighed = data.your_weighed ?? [];
+
+  const showComparison =
+    !!data.top_card_comparison &&
+    data.top_card_comparison.also_flagged >= 2 &&
+    data.top_card_comparison.sample_size >= 10;
+
+  const hasDetails =
+    catTotal > 0 || sevTotal > 0 || yourWeighed.length > 0 || showComparison;
 
   return (
     <Shell>
@@ -117,48 +127,60 @@ function Result() {
             <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
           </CollapsibleTrigger>
           <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
-            <div className="space-y-8 pt-6">
-              {data.severity_counts.critical +
-                data.severity_counts.medium +
-                data.severity_counts.light >
-                0 && (
+            <div className="space-y-10 pt-8">
+              {catTotal > 0 && (
                 <div>
                   <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                    what it looks like for you
+                    where the load lives
                   </p>
-                  <SeverityBars counts={data.severity_counts} />
+                  <CategoryBars items={catDetailed} total={catTotal} />
                 </div>
               )}
 
-              {top.length > 1 && (
-                <div className="space-y-2">
+              {sevTotal > 0 && (
+                <div>
                   <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                    and underneath that
+                    what kind of weight
                   </p>
-                  {top.slice(1).map((c: string) => (
-                    <p key={c} className="font-serif text-lg text-foreground">
-                      {categoryShort(c)}
-                    </p>
-                  ))}
+                  <p className="mt-3 font-serif text-lg italic leading-snug text-foreground">
+                    {severitySentence(data.severity_counts, data.dominant_severity)}
+                  </p>
                 </div>
               )}
 
-              {data.top_card_comparison &&
-                data.top_card_comparison.also_flagged >= 1 && (
-                  <div>
-                    <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                      others carrying the same thing
-                    </p>
-                    <p className="mt-3 font-serif text-lg leading-snug text-foreground">
-                      {data.top_card_comparison.also_flagged} out of the last{" "}
-                      {data.top_card_comparison.sample_size} parents also flagged{" "}
-                      <span className="italic text-muted-foreground">
-                        "{data.top_card_comparison.scenario}"
-                      </span>
-                      .
-                    </p>
-                  </div>
-                )}
+              {yourWeighed.length > 0 && (
+                <div>
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                    what you said weighs most
+                  </p>
+                  <ul className="mt-3 space-y-2">
+                    {yourWeighed.map((s, i) => (
+                      <li
+                        key={i}
+                        className="font-serif text-lg italic leading-snug text-foreground"
+                      >
+                        — {s}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {showComparison && data.top_card_comparison && (
+                <div>
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                    not just you
+                  </p>
+                  <p className="mt-3 font-serif text-lg leading-snug text-foreground">
+                    {data.top_card_comparison.also_flagged} of the last{" "}
+                    {data.top_card_comparison.sample_size} parents also flagged{" "}
+                    <span className="italic text-muted-foreground">
+                      "{data.top_card_comparison.scenario}"
+                    </span>
+                    .
+                  </p>
+                </div>
+              )}
             </div>
           </CollapsibleContent>
         </Collapsible>
