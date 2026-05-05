@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ReflectRouteImport } from './routes/reflect'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as CardsRouteImport } from './routes/cards'
 import { Route as BeginRouteImport } from './routes/begin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -19,6 +20,11 @@ import { Route as RTokenRouteImport } from './routes/r.$token'
 const ReflectRoute = ReflectRouteImport.update({
   id: '/reflect',
   path: '/reflect',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CardsRoute = CardsRouteImport.update({
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/begin': typeof BeginRoute
   '/cards': typeof CardsRoute
+  '/privacy': typeof PrivacyRoute
   '/reflect': typeof ReflectRoute
   '/r/$token': typeof RTokenRoute
   '/result/$token': typeof ResultTokenRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/begin': typeof BeginRoute
   '/cards': typeof CardsRoute
+  '/privacy': typeof PrivacyRoute
   '/reflect': typeof ReflectRoute
   '/r/$token': typeof RTokenRoute
   '/result/$token': typeof ResultTokenRoute
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/begin': typeof BeginRoute
   '/cards': typeof CardsRoute
+  '/privacy': typeof PrivacyRoute
   '/reflect': typeof ReflectRoute
   '/r/$token': typeof RTokenRoute
   '/result/$token': typeof ResultTokenRoute
@@ -78,16 +87,25 @@ export interface FileRouteTypes {
     | '/'
     | '/begin'
     | '/cards'
+    | '/privacy'
     | '/reflect'
     | '/r/$token'
     | '/result/$token'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/begin' | '/cards' | '/reflect' | '/r/$token' | '/result/$token'
+  to:
+    | '/'
+    | '/begin'
+    | '/cards'
+    | '/privacy'
+    | '/reflect'
+    | '/r/$token'
+    | '/result/$token'
   id:
     | '__root__'
     | '/'
     | '/begin'
     | '/cards'
+    | '/privacy'
     | '/reflect'
     | '/r/$token'
     | '/result/$token'
@@ -97,6 +115,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BeginRoute: typeof BeginRoute
   CardsRoute: typeof CardsRoute
+  PrivacyRoute: typeof PrivacyRoute
   ReflectRoute: typeof ReflectRoute
   RTokenRoute: typeof RTokenRoute
   ResultTokenRoute: typeof ResultTokenRoute
@@ -109,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/reflect'
       fullPath: '/reflect'
       preLoaderRoute: typeof ReflectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cards': {
@@ -153,6 +179,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BeginRoute: BeginRoute,
   CardsRoute: CardsRoute,
+  PrivacyRoute: PrivacyRoute,
   ReflectRoute: ReflectRoute,
   RTokenRoute: RTokenRoute,
   ResultTokenRoute: ResultTokenRoute,
