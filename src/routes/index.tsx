@@ -14,13 +14,15 @@ function Hero() {
           <span className="ink-accent italic underline-hand">anyone sees</span>.
         </h1>
 
-        <p className="mt-10 text-lg leading-relaxed text-foreground/80">
+        <p className="mt-10 font-serif text-2xl leading-snug text-foreground/80">
           Two minutes on the invisible part of parenting.
-          <br />
+        </p>
+
+        <p className="mt-6 font-serif text-2xl leading-snug text-foreground/80">
           No advice. No score. No fixing.
         </p>
 
-        <div className="mt-12 border-t border-border/60 pt-8">
+        <div className="mt-16 border-t border-border/60 pt-8">
           <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
             what this is
           </p>
@@ -32,19 +34,14 @@ function Hero() {
           </p>
         </div>
 
-        <div className="mt-12">
+        <div className="mt-16">
           <Link
             to="/begin"
-            className="inline-flex items-center justify-center rounded-md bg-foreground px-10 py-4 font-serif text-xl text-background transition-opacity hover:opacity-90"
+            className="inline-flex items-center justify-center rounded-md bg-foreground px-10 py-4 font-serif text-lg text-background transition-opacity hover:opacity-90"
           >
             begin
           </Link>
         </div>
-
-        <p className="mt-12 text-xs leading-relaxed text-muted-foreground">
-          Anonymous. Skip anything. Built by parents trying to understand parents — your
-          answers help the picture.
-        </p>
       </div>
     </Shell>
   );
