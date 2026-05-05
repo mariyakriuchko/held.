@@ -19,12 +19,7 @@
 
 export type CardSeverity = "critical" | "medium" | "light";
 
-export type CardCategory =
-  | "school_comm"
-  | "deadlines_prep"
-  | "appointments"
-  | "social_obligations"
-  | "daily_logistics";
+export type CardCategory = "school_comm" | "deadlines_prep" | "appointments" | "social_obligations" | "daily_logistics";
 
 export type Card = {
   id: string;
@@ -42,36 +37,31 @@ export const CARDS: Card[] = [
     id: "school_comm.buried_quick_note",
     category: "school_comm",
     severity: "critical",
-    scenario:
-      'The teacher sent a "quick note" last week. You read it, meant to reply, and now it\'s buried.',
+    scenario: 'The teacher sent a "quick note" last week. You read it, meant to reply, and now it\'s buried.',
   },
   {
     id: "deadlines_prep.activity_signup_closed",
     category: "deadlines_prep",
     severity: "critical",
-    scenario:
-      "The activity sign-up closed yesterday. You meant to do it Tuesday.",
+    scenario: "The activity sign-up closed yesterday. You meant to do it Tuesday.",
   },
   {
     id: "deadlines_prep.holiday_care_opens_monday",
     category: "deadlines_prep",
     severity: "critical",
-    scenario:
-      "Holiday care registration opens Monday. Spots fill in two days. You haven't decided which weeks yet.",
+    scenario: "Holiday care registration opens Monday. Spots fill in two days. You haven't decided which weeks yet.",
   },
   {
     id: "appointments.referral_expires",
     category: "appointments",
     severity: "critical",
-    scenario:
-      "The referral expires in two weeks. The waiting list is three months long.",
+    scenario: "The referral expires in two weeks. The waiting list is three months long.",
   },
   {
     id: "appointments.vaccination_reminder_fridge",
     category: "appointments",
     severity: "critical",
-    scenario:
-      "The vaccination reminder card has been on the fridge since March. Still no appointment scheduled.",
+    scenario: "The vaccination reminder card has been on the fridge since March. Still no appointment scheduled.",
   },
 
   // ── medium ──────────────────────────────────────────────────
@@ -86,29 +76,25 @@ export const CARDS: Card[] = [
     id: "school_comm.three_threads_named",
     category: "school_comm",
     severity: "medium",
-    scenario:
-      "Three threads from the class chat today. One mentioned your child by name and you haven't found which.",
+    scenario: "Three threads from the class chat today. One mentioned your child by name and you haven't found which.",
   },
   {
     id: "deadlines_prep.costume_day_friday",
     category: "deadlines_prep",
     severity: "medium",
-    scenario:
-      "Costume day is Friday. The email said this two weeks ago. Nothing has been bought.",
+    scenario: "Costume day is Friday. The email said this two weeks ago. Nothing has been bought.",
   },
   {
     id: "deadlines_prep.lunch_order_tonight",
     category: "deadlines_prep",
     severity: "medium",
-    scenario:
-      "The lunch order needs to be in by tonight or it's sandwiches all week.",
+    scenario: "The lunch order needs to be in by tonight or it's sandwiches all week.",
   },
   {
     id: "appointments.dentist_eight_months",
     category: "appointments",
     severity: "medium",
-    scenario:
-      'The dentist said "see you in six months" — that was eight months ago.',
+    scenario: 'The dentist said "see you in six months" — that was eight months ago.',
   },
   {
     id: "appointments.pediatrician_followup",
@@ -121,15 +107,13 @@ export const CARDS: Card[] = [
     id: "daily_logistics.library_book_overdue",
     category: "daily_logistics",
     severity: "medium",
-    scenario:
-      "The library book has been overdue for ten days. You've walked past the library twice.",
+    scenario: "The library book has been overdue for ten days. You've walked past the library twice.",
   },
   {
     id: "daily_logistics.favourite_leggings_hole",
     category: "daily_logistics",
     severity: "medium",
-    scenario:
-      "The favourite leggings have a hole in the knee. They're asked for every other morning.",
+    scenario: "The favourite leggings have a hole in the knee. They're asked for every other morning.",
   },
   {
     id: "social_obligations.bake_sale_tomorrow",
@@ -142,8 +126,7 @@ export const CARDS: Card[] = [
     id: "social_obligations.class_parent_volunteers",
     category: "social_obligations",
     severity: "medium",
-    scenario:
-      'The class parent asked for "a few volunteers" on Friday. No one has replied yet, including you.',
+    scenario: 'The class parent asked for "a few volunteers" on Friday. No one has replied yet, including you.',
   },
 
   // ── light ───────────────────────────────────────────────────
@@ -151,57 +134,50 @@ export const CARDS: Card[] = [
     id: "school_comm.newsletter_unopened",
     category: "school_comm",
     severity: "light",
-    scenario:
-      "The newsletter went out Sunday. You haven't opened it. There might be a costume day in there.",
+    scenario: "The newsletter went out Sunday. You haven't opened it. There might be a day trip in there.",
   },
   {
     id: "school_comm.whatsapp_poll_14_replies",
     category: "school_comm",
     severity: "light",
-    scenario:
-      "A WhatsApp poll about next week's outing. Already 14 replies. Yours isn't one of them.",
+    scenario: "A WhatsApp poll about next week's outing. Already 14 replies. Yours isn't one of them.",
   },
   {
     id: "deadlines_prep.picture_day_shirt",
     category: "deadlines_prep",
     severity: "light",
-    scenario:
-      "Picture day is next Wednesday. The good shirt is in the wash.",
+    scenario: "Picture day is next tomorrow. The good shirt is in the wash.",
   },
   {
     id: "appointments.eye_test_borderline",
     category: "appointments",
     severity: "light",
-    scenario:
-      'The eye test came back "borderline, recheck in a year." That was a year and a bit ago.',
+    scenario: 'The eye test came back "borderline, recheck in a year." That was a year and a bit ago.',
   },
   {
     id: "daily_logistics.indoor_shoes_tight",
     category: "daily_logistics",
     severity: "light",
-    scenario:
-      "The indoor shoes are getting tight. No one's said anything yet.",
+    scenario: "The indoor shoes are getting tight. No one's said anything yet.",
   },
   {
     id: "daily_logistics.sticker_chart_stopped",
     category: "daily_logistics",
     severity: "light",
-    scenario:
-      "The sticker chart on the fridge stopped getting stickers two weeks ago. No one has mentioned it.",
+    scenario: "The sticker chart on the fridge stopped getting stickers two weeks ago. No one has mentioned it.",
   },
   {
     id: "social_obligations.teacher_gift_collection",
     category: "social_obligations",
     severity: "light",
     scenario:
-      "Someone in the class chat is collecting for the teacher's gift. €15 by Thursday. You haven't transferred it yet.",
+      "Someone in the class chat is collecting for the teacher's gift. €4 by Thursday. You haven't transferred it yet.",
   },
   {
     id: "social_obligations.birthday_party_no_gift",
     category: "social_obligations",
     severity: "light",
-    scenario:
-      "The birthday party is Saturday. You said yes weeks ago. There's no gift in the house.",
+    scenario: "The birthday party is this Saturday. You said 'yes' weeks ago. There's no gift in the house.",
   },
 ];
 
