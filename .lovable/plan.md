@@ -1,40 +1,35 @@
-Create **one preview set** of `held.` logo concepts at a single size for review. No full export until approved.
+# Structural & brand polish
 
-## Preview deliverables
+Hero copy stays as-is. Changes below are structural, brand, and metadata only.
 
-5 concepts, each rendered as a single **PNG at 600×600** on warm paper background:
+## 1. Header logo — drop wavy underline (`src/components/held/Shell.tsx`)
 
-1. **Mark A — Classic.** `held.` baseline-aligned dot. Standard wordmark.
-2. **Mark B — Heavy dot.** Dot ~1.6× larger, ink-accent color. Reads "weight."
-3. **Mark C — Dot above.** Dot floats above the `d` baseline, like a breath.
-4. **Mark D — Dot only.** Single ink-accent dot on the field. Avatar / favicon contender.
-5. **Mark E — Stacked.** `held.` over small-caps tagline `parents trying to understand parents`.
+Remove the `underline-hand` class from the header "held" wordmark so the header matches the official Mark B (clean wordmark + green dot). The hand-underline stays available as a content device — still used inside the H1 on "anyone sees".
 
-All five share:
-- Fraunces serif, true lowercase, regular weight.
-- Warm paper background matching site `--background`.
-- Ink-accent dot color matching site `--ink-accent`.
-- 600×600 square so they sit side-by-side for comparison.
+## 2. Eyebrow relabel (`src/routes/index.tsx`)
 
-## Process
+Change the small-caps label above the example block from `what you'll do` to `what this is`. Body copy underneath stays the same.
 
-1. Read `src/styles.css` to grab the exact paper + ink-accent colors.
-2. Fetch Fraunces from Google Fonts into `/tmp` (not committed).
-3. Write a small Python (Pillow) script that renders all five marks from one shared template.
-4. Save outputs to `public/brand/preview/` so they're visible in the repo file tree:
-   - `held-mark-a-classic.png`
-   - `held-mark-b-heavy-dot.png`
-   - `held-mark-c-dot-above.png`
-   - `held-mark-d-dot-only.png`
-   - `held-mark-e-stacked.png`
-5. Visual QA each PNG (open + inspect: spacing, dot weight, no clipping).
-6. Surface all five inline as artifacts so the user can scan and pick favorites.
+## 3. Footer copyright (`src/components/held/Shell.tsx`)
 
-## Out of scope (until approval)
+Add `© 2026 held.` as a second line under the existing footer row, same muted styling.
 
-- All other sizes (300, 400, 32, 180, 1200×630, 1584×396).
-- SVG masters.
-- `public/brand/README.md` usage guide.
-- Dark-mode / inverse variants.
+## 4. Favicon + OG image (`src/routes/__root.tsx`)
 
-After review, the user picks 1–2 winners and I run the full export pass.
+Wire the brand assets already in `public/brand/`:
+
+- `<link rel="icon" type="image/png" sizes="32x32" href="/brand/held-mark-d-32.png">`
+- `<link rel="icon" type="image/png" sizes="16x16" href="/brand/held-mark-d-16.png">`
+- `<link rel="apple-touch-icon" sizes="180x180" href="/brand/held-mark-d-180.png">`
+- `og:image` → `/brand/held-og-1200x630.png`
+- Upgrade `twitter:card` from `summary` to `summary_large_image`
+
+Existing title/description meta stays unchanged (matches current hero voice).
+
+## Files touched
+
+- `src/components/held/Shell.tsx` — remove header underline, add footer copyright
+- `src/routes/index.tsx` — eyebrow label
+- `src/routes/__root.tsx` — favicon links, OG image, twitter card type
+
+No new dependencies, no route changes, no backend, no hero copy changes.
