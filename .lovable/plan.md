@@ -1,75 +1,76 @@
-# Roadmap — fix the critical gaps, one step at a time
+# Result page — make the core message land
 
-We'll tackle the four blockers from the critical review in order of impact. Each step is a self-contained shippable change so we can pause, review, and adjust between them.
-
----
-
-## Step 1 — Stronger result page (highest impact)
-
-**Goal:** turn the result from a single label into a real "shape of your load" that feels worth sharing.
-
-What changes on `/result/$token`:
-- **Severity profile**: aggregate the user's `weighs=true` reactions by `cards.severity` (low / medium / high) and show a small 3-bar breakdown ("3 heavy · 5 medium · 2 light").
-- **Category breakdown**: group weighed cards by `cards.category`, show top 3 ("school logistics · sleep · admin").
-- **Comparison stat**: for the user's top-weighed card, compute "X out of last 100 parents also flagged this" from `reactions` table. Falls back gracefully if sample is small.
-- **Keep** the existing label + session count, but reframe as supporting context.
-
-Technical:
-- New server fn `getResultProfile(token)` in `src/server/held.functions.ts` — does the joins/aggregations server-side.
-- Update `src/routes/result.$token.tsx` to render the new sections with the same calm serif aesthetic.
-- No schema changes needed.
+The result page right now opens with a category fragment ("the school messages.") and a vague subline. The user reads it and goes "…ok?" instead of "YES, this is exactly us." Fix: lead with a real sentence built from *their actual weighed cards*, then push everything else down.
 
 ---
 
-## Step 2 — Email capture ("tell me when there's more")
+## What the page looks like, top to bottom
 
-**Goal:** give users a return path so the "stay tuned" promise is real.
-
-- Soft, optional input at the bottom of the result page: *"want to hear when we add new things? leave your email."* No account, no password.
-- New table `subscribers` (`id`, `email` unique, `session_id` nullable, `created_at`). RLS: public INSERT only, no SELECT.
-- Server fn `subscribeEmail({ email, sessionId })` with basic email validation + duplicate-safe insert.
-- Same input also appears on the new About page (Step 4 dependency, optional now).
-
----
-
-## Step 3 — Personalized deck (make onboarding matter)
-
-**Goal:** the role/age questions currently do nothing — fix that.
-
-- Update `getDeck` in `src/server/held.functions.ts` to filter `cards` where:
-  - `role_tags` overlaps the session's `parent_role` (or empty array = applies to all)
-  - `age_tags` overlaps the session's `age_bands` (or empty = all)
-- Fallback: if filtered deck < N cards, top up with general cards so flow never breaks.
-- No UI changes; the onboarding answers start mattering immediately.
+1. **The headline sentence** — 1–2 sentences in the user's voice, generated from the specific scenarios they flagged. This is the whole point of the page.
+  - Example shape: *"you're the one tracking the permission slips, the dentist appointment nobody else remembers, and which kid needs which lunchbox by tuesday — and none of it is written down anywhere but in your head."*
+  - Generated server-side from the top weighed cards via Lovable AI (`google/gemini-2.5-flash`).
+  - Persisted to `sessions.headline` so reloads + the shared `/r/$token` view are stable.
+2. **Share + email, together** — one block, immediately under the headline, while recognition is hot.
+  - Primary button: *"send this to someone who'd get it"* (existing share)
+  - Directly under it, inline: *"and tell us where to send what comes next"* + email field
+  - Replaces today's layout where share is mid-page and email is buried at the bottom.
+3. **Supporting detail** (below the CTA, calmer):
+  - **Rename** "the shape of it" → **"what it looks like for you"** (heavy/medium/light bars)
+  - **Rename** "also showing up" → **"and underneath that"**
+  - **Rename** "you're not alone in this" → **"others carrying the same thing"** (comparison stat)
+  - Drop the "here's what came up" eyebrow — the headline does that work now.
+4. Footer: parents-this-week stat + "start again" link (unchanged).
+5. **"What helps you cope?" form — removed for now.** Logged in `.lovable/backlog.md` to revisit once the admin dashboard exists and we have a way to act on the signal. Possibly returns later as a one-line prompt inside the email-confirmation state, so it doesn't compete with the core moment.
 
 ---
 
-## Step 4 — Internal dashboard (evidence to iterate)
+## How the headline gets generated
 
-**Goal:** a private page to see what's actually happening.
+New column on `sessions`: `headline text` (nullable). Populated once on first `getResult` call when null.
 
-- New route `/admin` gated by a single shared password (env var `ADMIN_PASSWORD`), stored in sessionStorage after entry. Not user accounts — just a soft gate for the team.
-- Server fn `getAdminStats()` returns:
-  - sessions per day (last 30 days)
-  - top 10 most-weighed cards
-  - top 10 most-skipped cards
-  - drop-off: % of sessions that finish the deck vs. abandon
-  - email signups count
-- Renders as plain tables/sparklines — function over form.
+In `getResult`:
 
----
-
-## Out of scope (for now)
-- Rate-limiting on public INSERTs — note it as a follow-up; current volume doesn't warrant infra yet.
-- SEO/discovery surfaces — separate workstream once the product loop is tighter.
-- About page + analytics from the previous plan — we can fold those in after Step 2 if you want, or before. Let me know.
+- Collect the user's top ~5 weighed scenarios (`weighs=true` OR `reaction='this_is_my_life'`).
+- Call Lovable AI with a tight system prompt:
+  > "write one short paragraph (max 2 sentences, ~40 words) that names what this parent is carrying, in second person, lowercase, calm, specific. use 2–3 of the scenarios they flagged. no therapy-speak. no 'you are not alone'. make them feel seen and get the feeling - 'YES, this is my reality!'."
+- Pass the actual scenario strings + dominant category as context.
+- Persist the result back to `sessions.headline`. Wrapped in try/catch — never blocks the page.
+- Fallback (AI fails or <2 weighed cards): a tightened templated sentence built from category + severity (close to today's copy).
 
 ---
 
-## Suggested order of execution
-1. Step 1 (result page) — biggest perceived value jump
-2. Step 2 (email capture) — unlocks retention
-3. Step 3 (personalized deck) — closes the onboarding loop
-4. Step 4 (admin dashboard) — gives us data to decide what's next
+## Technical changes
 
-Approve and I'll start with Step 1 only. We review before moving to Step 2.
+- **Migration**: `alter table sessions add column headline text;`
+- `**src/server/held.functions.ts**`:
+  - Extend `getResult`: fetch session with `headline`; if null and weighed cards ≥2, call Lovable AI Gateway (`https://ai.gateway.lovable.dev/v1/chat/completions`, `LOVABLE_API_KEY`), write back, return.
+  - Helper `generateHeadline(scenarios, category, severity)` colocated in the same file, fully error-handled.
+  - Return shape gains `headline: string | null`.
+  - Remove `submitCoping` server function (and its client import).
+- `**src/routes/result.$token.tsx**`:
+  - Replace top block with the headline rendered in serif.
+  - Move `EmailCapture` directly under the share button as one combined CTA block.
+  - Rename section eyebrows as listed above.
+  - Remove `CopingForm` component, the toggle button, and related state.
+  - Update `head()` `og:description` to use the headline when present (much better link previews).
+
+No new routes. No other schema changes. The `coping` table stays in the DB untouched (no destructive migration) so the backlog idea can resume later without data loss.
+
+---
+
+## Backlog entry (created in `.lovable/backlog.md`)
+
+```
+## coping prompt — paused 2026-05-05
+- Cut from result page to keep the headline → share → email flow uncluttered.
+- DB table `coping` left in place; no data lost.
+- Revisit when:
+  1. admin dashboard (Step 4) exists so we can actually read the signal, AND
+  2. we have a content/feature loop that uses "what helps".
+- Likely return shape: one optional line inside the email-confirmation state
+  ("before you go — what helps when it's heavy?"), not a separate section.
+```
+
+---
+
+Approve and I'll implement.
