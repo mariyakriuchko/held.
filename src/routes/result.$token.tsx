@@ -78,7 +78,7 @@ function Result() {
 
   const headline =
     data.headline ?? fallbackHeadline(data.top_categories[0], data.dominant_severity);
-  const top = data.top_categories;
+  
 
   const sevTotal =
     data.severity_counts.critical +
