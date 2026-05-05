@@ -86,7 +86,7 @@ function Result() {
     data.severity_counts.light;
 
   const catDetailed = data.top_categories_detailed ?? [];
-  const catTotal = catDetailed.reduce((acc, c) => acc + c.count, 0);
+  const catTotal = catDetailed.reduce((acc: number, c: { count: number }) => acc + c.count, 0);
 
   const yourWeighed = data.your_weighed ?? [];
 
