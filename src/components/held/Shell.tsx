@@ -18,23 +18,23 @@ export function Shell({ children, className }: { children: React.ReactNode; clas
         <header className="mb-12 flex items-baseline justify-between">
           <Link
             to="/"
-            className="ink-accent inline-flex items-baseline font-serif text-2xl lowercase leading-none tracking-tight"
+            className="inline-flex items-baseline font-serif text-2xl lowercase leading-none tracking-tight text-foreground"
             aria-label="held — home"
           >
             <span>held</span>
-            <span aria-hidden className="ml-0.5 text-foreground">.</span>
+            <span aria-hidden className="ml-0.5 ink-accent">.</span>
           </Link>
           {onAbout ? (
             <Link
               to="/"
-              className="font-serif text-sm lowercase text-muted-foreground transition-colors hover:text-foreground"
+              className="text-xs lowercase text-muted-foreground transition-colors hover:text-foreground"
             >
               begin
             </Link>
           ) : (
             <Link
               to="/about"
-              className="font-serif text-sm lowercase text-muted-foreground transition-colors hover:text-foreground"
+              className="text-xs lowercase text-muted-foreground transition-colors hover:text-foreground"
             >
               about us
             </Link>
@@ -42,18 +42,16 @@ export function Shell({ children, className }: { children: React.ReactNode; clas
         </header>
         {children}
       </div>
-      <footer className="mt-16 space-y-2 text-center text-xs text-muted-foreground">
-        <div>
-          held · anonymous · parents trying to understand parents ·{" "}
-          <Link to="/about" className="underline-offset-4 hover:underline">
-            about us
-          </Link>{" "}
-          ·{" "}
-          <Link to="/privacy" className="underline-offset-4 hover:underline">
-            privacy
-          </Link>
-        </div>
-        <div>© 2026 held.</div>
+      <footer className="mt-16 text-center text-xs text-muted-foreground">
+        held · anonymous ·{" "}
+        <Link to="/about" className="underline-offset-4 hover:underline">
+          about us
+        </Link>{" "}
+        ·{" "}
+        <Link to="/privacy" className="underline-offset-4 hover:underline">
+          privacy
+        </Link>{" "}
+        · © 2026
       </footer>
     </main>
   );
