@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { CARDS, getCardById, type Card, type CardSeverity } from "./cards";
 
 const reactionEnum = z.enum(["this_is_my_life", "rarely", "not_my_world", "skip"]);
 
@@ -8,14 +9,13 @@ type DeckCard = {
   id: string;
   category: string;
   scenario: string;
-  severity: "critical" | "medium" | "light";
+  severity: CardSeverity;
 };
 
-// Pull a balanced deck: roughly 5 critical + 7 medium + 4 light = 16 cards.
-// Filtered by the parent's role + child age bands when provided. Cards with
-// empty role_tags / age_tags are treated as "applies to all". If the
-// filtered pool is too thin, we top up from the unfiltered pool so the
-// flow never breaks.
+// Pull a balanced deck of 10 cards: 3 critical + 4 medium + 3 light.
+// Filtered by parent role + age bands when provided. Cards with no role_tags
+// / age_tags are treated as "applies to all". If filtered pool is too thin,
+// we top up from the unfiltered pool so the flow never breaks.
 export const getDeck = createServerFn({ method: "GET" })
   .inputValidator((data) =>
     z
@@ -28,49 +28,42 @@ export const getDeck = createServerFn({ method: "GET" })
       .parse(data),
   )
   .handler(async ({ data }) => {
-    const { data: rows, error } = await supabaseAdmin
-      .from("cards")
-      .select("id, category, scenario, severity, role_tags, age_tags")
-      .eq("active", true);
-    if (error) throw new Error(error.message);
-
-    type Row = DeckCard & { role_tags: string[]; age_tags: string[] };
-    const all = (rows ?? []) as Row[];
-
+    const all = CARDS.filter((c) => c.active !== false);
     const role = data.parent_role ?? null;
     const ages = data.age_bands ?? [];
 
-    const matches = (c: Row) => {
-      const roleOk =
-        !role || c.role_tags.length === 0 || c.role_tags.includes(role);
+    const matches = (c: Card) => {
+      const roleTags = c.role_tags ?? [];
+      const ageTags = c.age_tags ?? [];
+      const roleOk = !role || roleTags.length === 0 || roleTags.includes(role);
       const ageOk =
         ages.length === 0 ||
-        c.age_tags.length === 0 ||
-        c.age_tags.some((t) => ages.includes(t));
+        ageTags.length === 0 ||
+        ageTags.some((t) => ages.includes(t));
       return roleOk && ageOk;
     };
 
     const filtered = all.filter(matches);
 
-    const pickTier = (pool: Row[], t: string, n: number): Row[] =>
+    const pickTier = (pool: Card[], t: CardSeverity, n: number): Card[] =>
       pool
         .filter((c) => c.severity === t)
         .sort(() => Math.random() - 0.5)
         .slice(0, n);
 
-    const targets: Array<["critical" | "medium" | "light", number]> = [
-      ["critical", 5],
-      ["medium", 7],
-      ["light", 4],
+    // Total = 10
+    const targets: Array<[CardSeverity, number]> = [
+      ["critical", 3],
+      ["medium", 4],
+      ["light", 3],
     ];
 
-    const picked: Row[] = [];
+    const picked: Card[] = [];
     const used = new Set<string>();
     for (const [tier, n] of targets) {
       const fromFiltered = pickTier(filtered, tier, n);
       fromFiltered.forEach((c) => used.add(c.id));
       picked.push(...fromFiltered);
-      // Top up from the unfiltered pool if we didn't get enough.
       if (fromFiltered.length < n) {
         const fallback = pickTier(
           all.filter((c) => !used.has(c.id)),
@@ -82,7 +75,6 @@ export const getDeck = createServerFn({ method: "GET" })
       }
     }
 
-    // Strip the tag arrays before returning — the client doesn't need them.
     const out: DeckCard[] = picked.map(({ id, category, scenario, severity }) => ({
       id,
       category,
@@ -90,7 +82,6 @@ export const getDeck = createServerFn({ method: "GET" })
       severity,
     }));
 
-    // Light final shuffle so severity isn't predictable.
     return out.sort(() => Math.random() - 0.5);
   });
 
@@ -108,7 +99,7 @@ export const submitSession = createServerFn({ method: "POST" })
         }),
         reactions: z.array(
           z.object({
-            card_id: z.string().uuid(),
+            card_id: z.string(),
             reaction: reactionEnum,
             weighs: z.boolean().optional().default(false),
           }),
@@ -132,16 +123,9 @@ export const submitSession = createServerFn({ method: "POST" })
     if (sErr || !session) throw new Error(sErr?.message ?? "session insert failed");
 
     if (data.reactions.length > 0) {
-      // Filter out reactions whose card_id no longer exists (stale session
-      // from before a card re-seed).
-      const ids = [...new Set(data.reactions.map((r) => r.card_id))];
-      const { data: validCards } = await supabaseAdmin
-        .from("cards")
-        .select("id")
-        .in("id", ids);
-      const validIds = new Set((validCards ?? []).map((c) => c.id));
+      // Filter out any reactions whose card_id is no longer in the library.
       const rows = data.reactions
-        .filter((r) => validIds.has(r.card_id) && r.reaction !== "skip")
+        .filter((r) => r.reaction !== "skip" && !!getCardById(r.card_id))
         .map((r) => ({
           session_id: session.id,
           card_id: r.card_id,
@@ -165,9 +149,6 @@ export const submitSession = createServerFn({ method: "POST" })
   });
 
 // Result data, looked up by public token.
-// We tally:
-//   - top categories (clusters)  -> what kind of load shows up
-//   - severity profile           -> whether it's the big slips or the small stuff
 export const getResult = createServerFn({ method: "GET" })
   .inputValidator((data) => z.object({ token: z.string() }).parse(data))
   .handler(async ({ data }) => {
@@ -180,56 +161,38 @@ export const getResult = createServerFn({ method: "GET" })
 
     const { data: reactions } = await supabaseAdmin
       .from("reactions")
-      .select("card_id, reaction, weighs, cards(category, severity, scenario)")
+      .select("card_id, reaction, weighs")
       .eq("session_id", session.id);
 
     const tally = new Map<string, number>();
     const catCounts = new Map<string, number>();
-    const sevTally: Record<"critical" | "medium" | "light", number> = {
-      critical: 0,
-      medium: 0,
-      light: 0,
-    };
-    const sevCounts: Record<"critical" | "medium" | "light", number> = {
-      critical: 0,
-      medium: 0,
-      light: 0,
-    };
-
-    type Joined = {
-      card_id: string;
-      reaction: string;
-      weighs: boolean;
-      cards: {
-        category: string;
-        severity: "critical" | "medium" | "light";
-        scenario: string;
-      } | null;
-    };
+    const sevTally: Record<CardSeverity, number> = { critical: 0, medium: 0, light: 0 };
+    const sevCounts: Record<CardSeverity, number> = { critical: 0, medium: 0, light: 0 };
 
     let topWeighed: { card_id: string; scenario: string } | null = null;
     const weighedScenarios: Array<{ scenario: string; weight: number; category: string }> = [];
 
-    for (const raw of reactions ?? []) {
-      const r = raw as unknown as Joined;
-      const cat = r.cards?.category;
-      const sev = r.cards?.severity;
-      if (!cat || !sev) continue;
+    for (const r of (reactions ?? []) as Array<{
+      card_id: string;
+      reaction: string;
+      weighs: boolean;
+    }>) {
+      const card = getCardById(r.card_id);
+      if (!card) continue;
+      const cat = card.category;
+      const sev = card.severity;
       const weight =
         (r.reaction === "this_is_my_life" ? 2 : r.reaction === "rarely" ? 1 : 0) +
         (r.weighs ? 2 : 0);
       if (weight === 0) continue;
       tally.set(cat, (tally.get(cat) ?? 0) + weight);
       sevTally[sev] += weight;
-      // Counts: only "weighed" cards (this_is_my_life OR explicitly weighs).
       if (r.reaction === "this_is_my_life" || r.weighs) {
         sevCounts[sev] += 1;
         catCounts.set(cat, (catCounts.get(cat) ?? 0) + 1);
-        if (r.cards?.scenario) {
-          weighedScenarios.push({ scenario: r.cards.scenario, weight, category: cat });
-        }
-        if (r.weighs && r.cards?.scenario && !topWeighed) {
-          topWeighed = { card_id: r.card_id, scenario: r.cards.scenario };
+        weighedScenarios.push({ scenario: card.scenario, weight, category: cat });
+        if (r.weighs && !topWeighed) {
+          topWeighed = { card_id: r.card_id, scenario: card.scenario };
         }
       }
     }
@@ -244,19 +207,12 @@ export const getResult = createServerFn({ method: "GET" })
       .slice(0, 3)
       .map(([category, count]) => ({ category, count }));
 
-    // Dominant severity: which kind of load weighs most.
-    const severities: Array<"critical" | "medium" | "light"> = [
-      "critical",
-      "medium",
-      "light",
-    ];
+    const severities: CardSeverity[] = ["critical", "medium", "light"];
     severities.sort((a, b) => sevTally[b] - sevTally[a]);
     const dominant_severity = severities[0];
 
     const { data: count } = await supabaseAdmin.rpc("parents_this_week");
 
-    // Comparison stat: of the last 100 sessions that had any weighed reaction,
-    // how many also weighed the user's top-weighed card?
     let top_card_comparison: {
       scenario: string;
       also_flagged: number;
@@ -284,7 +240,6 @@ export const getResult = createServerFn({ method: "GET" })
           }
           if (sessions.size >= 100) break;
         }
-        // Recount only across the first ~100 sessions encountered.
         const sample = Math.min(sessions.size, 100);
         if (sample >= 5) {
           top_card_comparison = {
@@ -296,7 +251,6 @@ export const getResult = createServerFn({ method: "GET" })
       }
     }
 
-    // Generate (and persist) a personalized headline if we don't have one yet.
     let headline: string | null = session.headline ?? null;
     if (!headline && weighedScenarios.length >= 2) {
       const topScenarios = weighedScenarios
@@ -324,12 +278,11 @@ export const getResult = createServerFn({ method: "GET" })
   });
 
 // Calls Lovable AI to write the personalized "this is my life" sentence
-// for the result page. Returns null on any failure — the page falls back
-// to templated copy.
+// for the result page. Returns null on any failure.
 async function generateHeadline(
   scenarios: string[],
   category: string | null,
-  severity: "critical" | "medium" | "light" | undefined,
+  severity: CardSeverity | undefined,
 ): Promise<string | null> {
   const apiKey = process.env.LOVABLE_API_KEY;
   if (!apiKey) return null;
@@ -366,7 +319,6 @@ async function generateHeadline(
     };
     const text = json.choices?.[0]?.message?.content?.trim();
     if (!text) return null;
-    // Strip any wrapping quotes the model might add.
     return text.replace(/^["'""]+|["'""]+$/g, "").trim();
   } catch (e) {
     console.error("headline gen error", e);
@@ -375,7 +327,6 @@ async function generateHeadline(
 }
 
 // Soft email capture for the "stay tuned" promise.
-// Returns ok even on duplicate so the UI doesn't leak who already signed up.
 export const subscribeEmail = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
@@ -399,7 +350,6 @@ export const subscribeEmail = createServerFn({ method: "POST" })
     const { error } = await supabaseAdmin
       .from("subscribers")
       .insert({ email: data.email, session_id, source: data.source });
-    // 23505 = unique violation: treat as success (idempotent).
     if (error && error.code !== "23505") throw new Error(error.message);
     return { ok: true };
   });

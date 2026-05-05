@@ -14,39 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      cards: {
-        Row: {
-          active: boolean
-          age_tags: string[]
-          category: string
-          created_at: string
-          id: string
-          role_tags: string[]
-          scenario: string
-          severity: string
-        }
-        Insert: {
-          active?: boolean
-          age_tags?: string[]
-          category: string
-          created_at?: string
-          id?: string
-          role_tags?: string[]
-          scenario: string
-          severity?: string
-        }
-        Update: {
-          active?: boolean
-          age_tags?: string[]
-          category?: string
-          created_at?: string
-          id?: string
-          role_tags?: string[]
-          scenario?: string
-          severity?: string
-        }
-        Relationships: []
-      }
       coping: {
         Row: {
           chips: string[]
@@ -105,13 +72,6 @@ export type Database = {
           weighs?: boolean
         }
         Relationships: [
-          {
-            foreignKeyName: "reactions_card_id_fkey"
-            columns: ["card_id"]
-            isOneToOne: false
-            referencedRelation: "cards"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "reactions_session_id_fkey"
             columns: ["session_id"]
