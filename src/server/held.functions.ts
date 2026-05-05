@@ -269,3 +269,33 @@ export const getResult = createServerFn({ method: "GET" })
       top_card_comparison,
     };
   });
+
+// Soft email capture for the "stay tuned" promise.
+// Returns ok even on duplicate so the UI doesn't leak who already signed up.
+export const subscribeEmail = createServerFn({ method: "POST" })
+  .inputValidator((data) =>
+    z
+      .object({
+        email: z.string().trim().toLowerCase().email().max(255),
+        token: z.string().optional(),
+        source: z.string().max(40).optional().default("result"),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data }) => {
+    let session_id: string | null = null;
+    if (data.token) {
+      const { data: s } = await supabaseAdmin
+        .from("sessions")
+        .select("id")
+        .eq("token", data.token)
+        .maybeSingle();
+      if (s) session_id = s.id;
+    }
+    const { error } = await supabaseAdmin
+      .from("subscribers")
+      .insert({ email: data.email, session_id, source: data.source });
+    // 23505 = unique violation: treat as success (idempotent).
+    if (error && error.code !== "23505") throw new Error(error.message);
+    return { ok: true };
+  });
