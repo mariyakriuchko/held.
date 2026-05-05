@@ -101,12 +101,12 @@ function Result() {
         <p className="mt-2 font-serif text-[1.35rem] italic leading-[1.45] tracking-tight text-foreground sm:text-[1.55rem]">
           {headline}
         </p>
-        <p className="mt-8 text-right text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-          — held
+        <p className="mt-8 text-right font-serif text-sm lowercase text-muted-foreground">
+          — held<span className="text-foreground">.</span>
         </p>
       </div>
 
-      {/* Unified CTA: share + email as one continuous block */}
+      {/* Share lives right under the card — that's what people actually share */}
       <ShareAndEmail token={token} headline={headline} />
 
       {/* Quiet expandable details */}
