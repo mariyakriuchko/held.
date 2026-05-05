@@ -1,18 +1,18 @@
 import * as React from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Shell } from "@/components/held/Shell";
-import { getResult, submitCoping, subscribeEmail } from "@/server/held.functions";
-import { cn } from "@/lib/utils";
+import { getResult, subscribeEmail } from "@/server/held.functions";
 
 export const Route = createFileRoute("/result/$token")({
   loader: async ({ params }) => {
     return await getResult({ data: { token: params.token } });
   },
   head: ({ loaderData }) => {
-    const top = loaderData?.top_categories ?? [];
-    const desc = top.length
-      ? `Most of what came up is ${categoryShort(top[0])}.`
-      : "Two minutes on the invisible part of parenting.";
+    const desc =
+      loaderData?.headline ??
+      (loaderData?.top_categories?.length
+        ? `most of what came up is ${categoryShort(loaderData.top_categories[0])}.`
+        : "two minutes on the invisible part of parenting.");
     return {
       meta: [
         { title: "here's what came up — held" },
@@ -34,7 +34,6 @@ export const Route = createFileRoute("/result/$token")({
   component: Result,
 });
 
-// Short, natural-language label for a cluster.
 function categoryShort(c: string): string {
   switch (c) {
     case "school_comm":
@@ -52,65 +51,52 @@ function categoryShort(c: string): string {
   }
 }
 
-// Sentence templates by dominant severity — same data, different framing.
-function severitySub(sev: "critical" | "medium" | "light" | undefined, top?: string): string {
-  if (!top) return "";
+// Templated fallback when AI headline isn't available.
+function fallbackHeadline(
+  top: string | undefined,
+  sev: "critical" | "medium" | "light" | undefined,
+): string {
+  if (!top) return "you showed up. that already counts.";
+  const cat = categoryShort(top);
   if (sev === "critical")
-    return "and most of it is the kind of thing that has consequences if it slips.";
+    return `you're the one carrying ${cat} — and most of it is the kind that has consequences if it slips.`;
   if (sev === "light")
-    return "the small stuff — the kind no one notices, but it adds up.";
-  return "the steady weight of what no one else is tracking.";
+    return `you're the one keeping ${cat} in your head — the small stuff no one notices, that quietly adds up.`;
+  return `you're the one carrying ${cat} — the steady weight no one else is tracking.`;
 }
 
 function Result() {
   const { token } = Route.useParams();
   const data = Route.useLoaderData();
   const navigate = useNavigate();
-  const [copied, setCopied] = React.useState(false);
-  const [showCoping, setShowCoping] = React.useState(false);
 
+  const headline =
+    data.headline ?? fallbackHeadline(data.top_categories[0], data.dominant_severity);
   const top = data.top_categories;
-  const sub = severitySub(data.dominant_severity, top[0]);
-
-  const share = async () => {
-    const url = `${window.location.origin}/r/${token}`;
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: "held", url });
-      } else {
-        await navigator.clipboard.writeText(url);
-      }
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2400);
-    } catch {
-      /* ignore */
-    }
-  };
 
   return (
     <Shell>
-      {top.length > 0 ? (
-        <>
-          <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-            here's what came up
+      <h1 className="font-serif text-2xl leading-[1.35] tracking-tight text-foreground sm:text-[1.7rem]">
+        {headline}
+      </h1>
+
+      <ShareAndEmail token={token} headline={headline} />
+
+      {(data.severity_counts.critical +
+        data.severity_counts.medium +
+        data.severity_counts.light) > 0 && (
+        <div className="mt-12 border-t border-border pt-6">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">
+            what it looks like for you
           </p>
-          <h2 className="mt-3 font-serif text-3xl leading-[1.2] tracking-tight text-foreground sm:text-4xl">
-            <span className="ink-accent underline-hand">{categoryShort(top[0])}</span>.
-          </h2>
-        </>
-      ) : (
-        <h2 className="font-serif text-3xl leading-[1.2] tracking-tight text-foreground sm:text-4xl">
-          you showed up. that already counts.
-        </h2>
-      )}
-      {sub && (
-        <p className="mt-4 font-serif text-xl leading-snug text-muted-foreground">{sub}</p>
+          <SeverityBars counts={data.severity_counts} />
+        </div>
       )}
 
       {top.length > 1 && (
         <div className="mt-10 space-y-2 border-t border-border pt-6">
           <p className="text-xs uppercase tracking-wider text-muted-foreground">
-            also showing up
+            and underneath that
           </p>
           {top.slice(1).map((c: string) => (
             <p key={c} className="font-serif text-lg text-foreground">
@@ -120,19 +106,10 @@ function Result() {
         </div>
       )}
 
-      {(data.severity_counts.critical + data.severity_counts.medium + data.severity_counts.light) > 0 && (
-        <div className="mt-10 border-t border-border pt-6">
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">
-            the shape of it
-          </p>
-          <SeverityBars counts={data.severity_counts} />
-        </div>
-      )}
-
       {data.top_card_comparison && data.top_card_comparison.also_flagged >= 1 && (
         <div className="mt-10 border-t border-border pt-6">
           <p className="text-xs uppercase tracking-wider text-muted-foreground">
-            you're not alone in this
+            others carrying the same thing
           </p>
           <p className="mt-3 font-serif text-lg leading-snug text-foreground">
             {data.top_card_comparison.also_flagged} out of the last{" "}
@@ -145,44 +122,100 @@ function Result() {
         </div>
       )}
 
-      <p className="mt-10 text-sm leading-relaxed text-muted-foreground">
+      <p className="mt-12 text-sm leading-relaxed text-muted-foreground">
         {data.parents_this_week.toLocaleString()} parent
         {data.parents_this_week === 1 ? "" : "s"} sat with these cards this week.
       </p>
 
-      <div className="mt-12 space-y-3">
-        <button
-          onClick={share}
-          className="w-full rounded-md bg-foreground px-6 py-3 font-serif text-lg text-background transition-opacity hover:opacity-90"
-        >
-          {copied ? "link copied" : "send this to someone who'd get it"}
-        </button>
-        <button
-          onClick={() => setShowCoping((v) => !v)}
-          className="w-full rounded-md border border-border bg-transparent px-6 py-3 font-serif text-lg text-foreground transition-colors hover:bg-muted"
-        >
-          {showCoping ? "close" : "one more — what helps you cope?"}
-        </button>
-      </div>
-
-      {showCoping && (
-        <CopingForm
-          token={token}
-          onDone={() => {
-            setShowCoping(false);
-          }}
-        />
-      )}
-
-      <EmailCapture token={token} />
-
       <button
         onClick={() => navigate({ to: "/" })}
-        className="mt-12 self-start text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
+        className="mt-8 self-start text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
       >
         start again
       </button>
     </Shell>
+  );
+}
+
+function ShareAndEmail({ token, headline }: { token: string; headline: string }) {
+  const [copied, setCopied] = React.useState(false);
+  const [email, setEmail] = React.useState("");
+  const [emailState, setEmailState] = React.useState<
+    "idle" | "loading" | "done" | "error"
+  >("idle");
+
+  const share = async () => {
+    const url = `${window.location.origin}/r/${token}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "held", text: headline, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2400);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const submitEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (emailState === "loading" || !email.trim()) return;
+    setEmailState("loading");
+    try {
+      await subscribeEmail({
+        data: { email: email.trim(), token, source: "result" },
+      });
+      setEmailState("done");
+    } catch {
+      setEmailState("error");
+    }
+  };
+
+  return (
+    <div className="mt-10 space-y-4">
+      <button
+        onClick={share}
+        className="w-full rounded-md bg-foreground px-6 py-3 font-serif text-lg text-background transition-opacity hover:opacity-90"
+      >
+        {copied ? "link copied" : "send this to someone who'd get it"}
+      </button>
+
+      {emailState === "done" ? (
+        <p className="font-serif text-base text-muted-foreground">
+          thank you. we'll be in touch when there's something worth saying.
+        </p>
+      ) : (
+        <form onSubmit={submitEmail} className="space-y-2">
+          <p className="font-serif text-base leading-snug text-foreground">
+            and tell us where to send what comes next →
+          </p>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              className="flex-1 rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:border-foreground/50 focus:outline-none"
+            />
+            <button
+              type="submit"
+              disabled={emailState === "loading"}
+              className="rounded-md border border-border bg-transparent px-5 py-2 font-serif text-base text-foreground transition-colors hover:bg-muted disabled:opacity-40"
+            >
+              {emailState === "loading" ? "…" : "keep me posted"}
+            </button>
+          </div>
+          {emailState === "error" && (
+            <p className="text-xs text-muted-foreground">
+              something went wrong — try again?
+            </p>
+          )}
+        </form>
+      )}
+    </div>
   );
 }
 
@@ -219,139 +252,5 @@ function SeverityBars({
         );
       })}
     </div>
-  );
-}
-
-const CHIPS = [
-  "talking to a friend",
-  "time alone",
-  "scrolling",
-  "nothing really works right now",
-];
-
-function CopingForm({ token, onDone }: { token: string; onDone: () => void }) {
-  const [text, setText] = React.useState("");
-  const [chips, setChips] = React.useState<string[]>([]);
-  const [submitting, setSubmitting] = React.useState(false);
-  const [done, setDone] = React.useState(false);
-
-  const toggle = (c: string) =>
-    setChips((cur) => (cur.includes(c) ? cur.filter((x) => x !== c) : [...cur, c]));
-
-  const submit = async () => {
-    if (submitting) return;
-    setSubmitting(true);
-    try {
-      await submitCoping({ data: { token, text, chips } });
-      setDone(true);
-      setTimeout(onDone, 1800);
-    } catch (e) {
-      console.error(e);
-      setSubmitting(false);
-    }
-  };
-
-  if (done) {
-    return (
-      <p className="mt-8 font-serif text-lg text-muted-foreground">
-        thank you. that helps more than you know.
-      </p>
-    );
-  }
-
-  return (
-    <div className="mt-8 border-t border-border pt-8">
-      <p className="font-serif text-lg leading-snug text-foreground">
-        when the load gets heavy, what actually helps you cope right now?
-      </p>
-      <div className="mt-4 flex flex-wrap gap-2">
-        {CHIPS.map((c) => (
-          <button
-            key={c}
-            onClick={() => toggle(c)}
-            className={cn(
-              "rounded-full border px-3 py-1.5 text-xs transition-all",
-              chips.includes(c)
-                ? "border-foreground bg-foreground text-background"
-                : "border-border text-foreground hover:border-foreground/50",
-            )}
-          >
-            {c}
-          </button>
-        ))}
-      </div>
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="or in your own words…"
-        rows={3}
-        className="mt-4 w-full resize-none rounded-md border border-border bg-card p-3 text-sm text-foreground placeholder:text-muted-foreground/60 focus:border-foreground/50 focus:outline-none"
-      />
-      <button
-        onClick={submit}
-        disabled={submitting}
-        className="mt-4 rounded-md bg-foreground px-6 py-2 font-serif text-base text-background transition-opacity hover:opacity-90 disabled:opacity-40"
-      >
-        {submitting ? "…" : "send"}
-      </button>
-    </div>
-  );
-}
-
-function EmailCapture({ token }: { token: string }) {
-  const [email, setEmail] = React.useState("");
-  const [state, setState] = React.useState<"idle" | "loading" | "done" | "error">("idle");
-
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (state === "loading" || !email.trim()) return;
-    setState("loading");
-    try {
-      await subscribeEmail({ data: { email: email.trim(), token, source: "result" } });
-      setState("done");
-    } catch {
-      setState("error");
-    }
-  };
-
-  if (state === "done") {
-    return (
-      <p className="mt-12 border-t border-border pt-6 font-serif text-lg text-muted-foreground">
-        thank you. we'll be in touch when there's something worth saying.
-      </p>
-    );
-  }
-
-  return (
-    <form onSubmit={submit} className="mt-12 border-t border-border pt-6">
-      <p className="text-xs uppercase tracking-wider text-muted-foreground">
-        stay in the loop
-      </p>
-      <p className="mt-3 font-serif text-lg leading-snug text-foreground">
-        want to hear when we add new things? leave your email — no spam, no account.
-      </p>
-      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-        <input
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@example.com"
-          className="flex-1 rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:border-foreground/50 focus:outline-none"
-        />
-        <button
-          type="submit"
-          disabled={state === "loading"}
-          className="rounded-md bg-foreground px-5 py-2 font-serif text-base text-background transition-opacity hover:opacity-90 disabled:opacity-40"
-        >
-          {state === "loading" ? "…" : "keep me posted"}
-        </button>
-      </div>
-      {state === "error" && (
-        <p className="mt-2 text-xs text-muted-foreground">
-          something went wrong — try again?
-        </p>
-      )}
-    </form>
   );
 }
