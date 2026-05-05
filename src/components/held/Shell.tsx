@@ -22,7 +22,10 @@ export function Shell({ children, className }: { children: React.ReactNode; clas
             aria-label="held — home"
           >
             <span>held</span>
-            <span aria-hidden className="ml-0.5 ink-accent">.</span>
+            <span
+              aria-hidden
+              className="ml-[3px] inline-block h-[7px] w-[7px] rounded-full bg-[var(--accent-ink)]"
+            />
           </Link>
           {onAbout ? (
             <Link
