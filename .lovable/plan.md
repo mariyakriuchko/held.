@@ -1,61 +1,76 @@
-# Logo color fix + type & spacing tightening
+# Cards page — principal designer pass
 
-## 1. Header logo — ink wordmark, green dot
+Bring `src/routes/cards.tsx` in line with the held. voice: quiet, conversational, typographic. Less form, more letter.
 
-`src/components/held/Shell.tsx`: swap the header so "held" renders in ink (default `text-foreground`) and the dot in green (`ink-accent`). Matches the brand assets, favicon, and OG image — single accent spent intentionally on the dot.
+## 1. Top meta row — drop the system labels
 
-```
-<span>held</span>
-<span aria-hidden className="ml-0.5 ink-accent">.</span>
-```
+Current row carries three competing signals: `back`, `1 of 12`, and the uppercase severity label. The severity label is the loudest thing on the page and reads like a CMS tag.
 
-## 2. Type system — collapse to 5 roles
+- Remove `severityLabel(card.severity)` from the UI entirely (keep the data, just don't render it).
+- Keep `back` (left) and `1 of 12` (right). Both stay `text-xs text-muted-foreground`.
+- Result: header reads as quiet wayfinding, not categorization.
 
-Define a clear 5-role scale and apply it consistently. No new font files; uses Fraunces + Inter already loaded.
+## 2. Cluster icon — remove
 
-| Role | Family | Size | Color | Used for |
-|---|---|---|---|---|
-| Display | serif | text-5xl / sm:text-6xl | foreground | H1 only |
-| Sub | serif | text-2xl, leading-snug | foreground/80 | Paragraph under H1 |
-| Body | sans | text-base, leading-relaxed | foreground/80 | Example block, prose |
-| Label | sans | text-[11px] uppercase tracking-[0.18em] | muted | Eyebrow only |
-| Meta | sans | text-xs | muted | Header nav link, footer |
+`<ClusterMark>` above the scenario adds a decorative beat that competes with the sentence. The scenario is the content; nothing should precede it.
 
-Concrete edits:
+- Delete the `<ClusterMark …/>` block.
+- Scenario sits alone in the card body, vertically centered.
 
-- **Header "about us" / "begin" link** (`Shell.tsx`): change from `font-serif text-sm` → `text-xs` (sans). Frees serif for content voice.
-- **Sub paragraph** (`index.tsx`): change from `text-lg` (sans) → `font-serif text-2xl leading-snug`. Promotes it into the H1's voice family, removes one sans size.
-- **Button** (`index.tsx`): change from `font-serif text-xl` → `font-serif text-lg`. Keeps serif (intentional brand moment) but shares the sub's serif size band instead of inventing a 4th serif size.
-- **Bottom footnote** (`index.tsx`): remove. Its content ("anonymous", "built by parents") already lives in the footer; "skip anything" is implicit and was getting redundant.
-- **Eyebrow + example body**: unchanged — already on-scale.
+## 3. Answer choices — lines, not buttons
 
-## 3. Spacing — two values only
+Currently bordered + `bg-card` + `rounded-md` boxes. Reads as a form. Switch to typographic lines with a dot marker.
 
-Replace the four near-identical gaps (`mt-10`, three × `mt-12`, `mt-16`) with two:
+- No border, no background, no card chrome.
+- Each row: a small circle marker (8px) on the left, then the serif label.
+- Default: hollow circle (`border border-foreground/30`), label `text-foreground/70`.
+- Selected: filled green dot (`bg-[var(--accent-ink)]`), label `text-foreground`.
+- Hover: marker border darkens, label goes to full foreground.
+- Padding stays generous (`py-3`) so the tap target is unchanged; only the visual weight drops.
+- Spacing between rows: `space-y-1` (lines, not stacked cards).
 
-- `mt-10` for tight relationship (H1 → sub, sub → promise area)
-- `mt-16` for major section break (promise → "what this is" block, block → button)
+This also resolves the `rounded-md` (buttons) vs `rounded-full` (pill) collision — answers stop being shaped at all.
 
-Concrete in `index.tsx`:
-- H1 → sub: `mt-10` (was `mt-10` ✓)
-- Promise line: collapse into the same paragraph as sub (no gap), OR keep as separate paragraph with `mt-6` — pick one. Plan: keep as a separate paragraph with `mt-6` so the triple-negative still lands as its own beat, but visually grouped with the sub.
-- Sub block → "what this is" block: `mt-16` (was `mt-12`)
-- "what this is" block → button: `mt-16` (was `mt-12`)
-- Remove bottom footnote and its `mt-12` entirely.
+## 4. "weighs on me" pill — keep, but quiet it
 
-## 4. Footer — single line with copyright
+The pill is the one place a brand accent earns its keep (a moment of self-awareness). Keep it round, but tone the inactive state.
 
-`Shell.tsx`: collapse the two-row footer (added last turn) back to one line, since the bottom footnote in the hero is being removed and the footer is now the only meta surface. New shape:
+- Inactive: drop the border to `border-foreground/15`, label `text-muted-foreground`, no bg.
+- Active: keep `ink-accent` text + `bg-accent/10`, drop the border to `border-accent/40`.
+- Icon size unchanged.
 
-```
-held · anonymous · about us · privacy · © 2026
-```
+## 5. Completion + skip copy
 
-One row, `text-xs text-muted-foreground`, separators with `·`.
+`done →` is transactional. Soften to match the rest of the voice.
+
+- Last card: `done →` becomes `that's all →`.
+- Mid-deck: `next →` stays (it's already neutral).
+- `skip` stays.
+
+## 6. Card 1 footnote — move out
+
+The "tap weighs on me… you can go back" line is onboarding instruction sitting on a content card. It's the right info, wrong place.
+
+- Remove from `cards.tsx` and do not put it into homepage.
+
+## 7. Transition rhythm — stagger
+
+Today scenario and answers fade together (220ms). Stagger so the card "speaks first."
+
+- Scenario block: fade in at 0ms, duration 240ms.
+- Answers + footer block: fade in at ~120ms delay, duration 240ms.
+- Implement with a second state or a `delay-[120ms]` utility on the lower block.
+- Out-fade stays synchronous (220ms) so navigation feels crisp.
+
+## Priority
+
+1. **High** (biggest voice shift): #3 answer lines, #2 remove cluster icon, #1 remove severity label.
+2. **Medium**: #4 pill quieting, #5 copy softening, #6 move footnote.
+3. **Polish**: #7 staggered fade.
 
 ## Files touched
 
-- `src/components/held/Shell.tsx` — logo color swap, header link → sans/xs, footer single line with copyright
-- `src/routes/index.tsx` — sub → serif 2xl, button → serif lg, remove bottom footnote, normalize spacing
+- `src/routes/cards.tsx` — all visual changes above.
+- `src/routes/begin.tsx` — optionally absorb the moved footnote (one line under the existing intro).
 
-No CSS token changes, no new dependencies, no hero copy changes.
+No token changes, no new components, no new dependencies.

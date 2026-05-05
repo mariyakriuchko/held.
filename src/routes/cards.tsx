@@ -5,7 +5,6 @@ import { Shell } from "@/components/held/Shell";
 import { cn } from "@/lib/utils";
 import { getDeck } from "@/server/held.functions";
 import { readSession, updateSession, type Reaction } from "@/lib/session";
-import { ClusterMark } from "@/components/held/marks";
 
 export const Route = createFileRoute("/cards")({
   component: Cards,
