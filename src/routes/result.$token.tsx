@@ -1,7 +1,7 @@
 import * as React from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Shell } from "@/components/held/Shell";
-import { getResult, submitCoping } from "@/server/held.functions";
+import { getResult, submitCoping, subscribeEmail } from "@/server/held.functions";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/result/$token")({
