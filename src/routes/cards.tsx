@@ -44,9 +44,12 @@ function Cards() {
 
   React.useEffect(() => {
     const s = readSession();
-    // Allow even if onboarding fully skipped — onboarding is optional now.
-    getDeck().then((d) => setDeck(d as Card[]));
-    void s;
+    getDeck({
+      data: {
+        parent_role: s.onboarding.parent_role,
+        age_bands: s.onboarding.age_bands,
+      },
+    }).then((d) => setDeck(d as Card[]));
   }, [navigate]);
 
   if (!deck) {

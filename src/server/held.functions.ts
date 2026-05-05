@@ -12,28 +12,88 @@ type DeckCard = {
 };
 
 // Pull a balanced deck: roughly 5 critical + 7 medium + 4 light = 16 cards.
-// Shuffled within each tier, then concatenated and re-shuffled lightly so
-// the parent doesn't always meet the heaviest cards first.
-export const getDeck = createServerFn({ method: "GET" }).handler(async () => {
-  const { data, error } = await supabaseAdmin
-    .from("cards")
-    .select("id, category, scenario, severity")
-    .eq("active", true);
-  if (error) throw new Error(error.message);
+// Filtered by the parent's role + child age bands when provided. Cards with
+// empty role_tags / age_tags are treated as "applies to all". If the
+// filtered pool is too thin, we top up from the unfiltered pool so the
+// flow never breaks.
+export const getDeck = createServerFn({ method: "GET" })
+  .inputValidator((data) =>
+    z
+      .object({
+        parent_role: z.string().nullable().optional(),
+        age_bands: z.array(z.string()).optional().default([]),
+      })
+      .optional()
+      .default({})
+      .parse(data),
+  )
+  .handler(async ({ data }) => {
+    const { data: rows, error } = await supabaseAdmin
+      .from("cards")
+      .select("id, category, scenario, severity, role_tags, age_tags")
+      .eq("active", true);
+    if (error) throw new Error(error.message);
 
-  const all = (data ?? []) as DeckCard[];
-  const byTier = (t: string) =>
-    all.filter((c) => c.severity === t).sort(() => Math.random() - 0.5);
+    type Row = DeckCard & { role_tags: string[]; age_tags: string[] };
+    const all = (rows ?? []) as Row[];
 
-  const picked: DeckCard[] = [
-    ...byTier("critical").slice(0, 5),
-    ...byTier("medium").slice(0, 7),
-    ...byTier("light").slice(0, 4),
-  ];
+    const role = data.parent_role ?? null;
+    const ages = data.age_bands ?? [];
 
-  // Light final shuffle so severity isn't predictable.
-  return picked.sort(() => Math.random() - 0.5);
-});
+    const matches = (c: Row) => {
+      const roleOk =
+        !role || c.role_tags.length === 0 || c.role_tags.includes(role);
+      const ageOk =
+        ages.length === 0 ||
+        c.age_tags.length === 0 ||
+        c.age_tags.some((t) => ages.includes(t));
+      return roleOk && ageOk;
+    };
+
+    const filtered = all.filter(matches);
+
+    const pickTier = (pool: Row[], t: string, n: number): Row[] =>
+      pool
+        .filter((c) => c.severity === t)
+        .sort(() => Math.random() - 0.5)
+        .slice(0, n);
+
+    const targets: Array<["critical" | "medium" | "light", number]> = [
+      ["critical", 5],
+      ["medium", 7],
+      ["light", 4],
+    ];
+
+    const picked: Row[] = [];
+    const used = new Set<string>();
+    for (const [tier, n] of targets) {
+      const fromFiltered = pickTier(filtered, tier, n);
+      fromFiltered.forEach((c) => used.add(c.id));
+      picked.push(...fromFiltered);
+      // Top up from the unfiltered pool if we didn't get enough.
+      if (fromFiltered.length < n) {
+        const fallback = pickTier(
+          all.filter((c) => !used.has(c.id)),
+          tier,
+          n - fromFiltered.length,
+        );
+        fallback.forEach((c) => used.add(c.id));
+        picked.push(...fallback);
+      }
+    }
+
+    // Strip the tag arrays before returning — the client doesn't need them.
+    const out: DeckCard[] = picked.map(({ id, category, scenario, severity }) => ({
+      id,
+      category,
+      scenario,
+      severity,
+    }));
+
+    // Light final shuffle so severity isn't predictable.
+    return out.sort(() => Math.random() - 0.5);
+  });
+
 
 // Submit a completed session: onboarding + reactions + optional reflection.
 // Returns the share token.
