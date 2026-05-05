@@ -173,7 +173,7 @@ export const getResult = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const { data: session, error } = await supabaseAdmin
       .from("sessions")
-      .select("id, parent_role, created_at")
+      .select("id, parent_role, created_at, headline")
       .eq("token", data.token)
       .single();
     if (error || !session) throw new Error("not found");
