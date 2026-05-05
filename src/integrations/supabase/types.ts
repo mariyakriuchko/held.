@@ -155,6 +155,7 @@ export type Database = {
           age_bands: string[]
           channel: string | null
           created_at: string
+          headline: string | null
           id: string
           num_children: string | null
           parent_role: string | null
@@ -164,6 +165,7 @@ export type Database = {
           age_bands?: string[]
           channel?: string | null
           created_at?: string
+          headline?: string | null
           id?: string
           num_children?: string | null
           parent_role?: string | null
@@ -173,6 +175,7 @@ export type Database = {
           age_bands?: string[]
           channel?: string | null
           created_at?: string
+          headline?: string | null
           id?: string
           num_children?: string | null
           parent_role?: string | null
