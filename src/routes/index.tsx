@@ -22,7 +22,7 @@ function Hero() {
 
         <div className="mt-12 border-t border-border/60 pt-8">
           <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-            what you'll do
+            what this is
           </p>
           <p className="mt-4 text-base leading-relaxed text-foreground/80">
             Small moments. The school email at 9pm. The dentist you keep meaning to book.

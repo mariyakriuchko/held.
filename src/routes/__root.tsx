@@ -41,10 +41,15 @@ export const Route = createRootRoute({
           "A quiet two minutes about the invisible part of parenting. No advice. No score. No fixing.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:image", content: "/brand/held-og-1200x630.png" },
+      { name: "twitter:image", content: "/brand/held-og-1200x630.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      { rel: "icon", type: "image/png", sizes: "32x32", href: "/brand/held-mark-d-32.png" },
+      { rel: "icon", type: "image/png", sizes: "16x16", href: "/brand/held-mark-d-16.png" },
+      { rel: "apple-touch-icon", sizes: "180x180", href: "/brand/held-mark-d-180.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {

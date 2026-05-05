@@ -21,7 +21,7 @@ export function Shell({ children, className }: { children: React.ReactNode; clas
             className="ink-accent inline-flex items-baseline font-serif text-2xl lowercase leading-none tracking-tight"
             aria-label="held — home"
           >
-            <span className="underline-hand">held</span>
+            <span>held</span>
             <span aria-hidden className="ml-0.5 text-foreground">.</span>
           </Link>
           {onAbout ? (
@@ -42,15 +42,18 @@ export function Shell({ children, className }: { children: React.ReactNode; clas
         </header>
         {children}
       </div>
-      <footer className="mt-16 text-center text-xs text-muted-foreground">
-        held · anonymous · parents trying to understand parents ·{" "}
-        <Link to="/about" className="underline-offset-4 hover:underline">
-          about us
-        </Link>{" "}
-        ·{" "}
-        <Link to="/privacy" className="underline-offset-4 hover:underline">
-          privacy
-        </Link>
+      <footer className="mt-16 space-y-2 text-center text-xs text-muted-foreground">
+        <div>
+          held · anonymous · parents trying to understand parents ·{" "}
+          <Link to="/about" className="underline-offset-4 hover:underline">
+            about us
+          </Link>{" "}
+          ·{" "}
+          <Link to="/privacy" className="underline-offset-4 hover:underline">
+            privacy
+          </Link>
+        </div>
+        <div>© 2026 held.</div>
       </footer>
     </main>
   );
