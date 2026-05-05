@@ -45,7 +45,7 @@ export function Shell({ children, className }: { children: React.ReactNode; clas
       <footer className="mt-16 text-center text-xs text-muted-foreground">
         held · anonymous · parents trying to understand parents ·{" "}
         <Link to="/about" className="underline-offset-4 hover:underline">
-          about
+          about us
         </Link>{" "}
         ·{" "}
         <Link to="/privacy" className="underline-offset-4 hover:underline">
