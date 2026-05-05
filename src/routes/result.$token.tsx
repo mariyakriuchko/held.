@@ -295,25 +295,38 @@ function ShareAndEmail({ token, headline }: { token: string; headline: string })
   );
 }
 
-function SeverityBars({
-  counts,
-}: {
-  counts: { critical: number; medium: number; light: number };
-}) {
+function severitySentence(
+  counts: { critical: number; medium: number; light: number },
+  dominant: "critical" | "medium" | "light" | undefined,
+): string {
   const total = counts.critical + counts.medium + counts.light;
-  const rows: Array<{ key: keyof typeof counts; label: string; count: number }> = [
-    { key: "critical", label: "heavy", count: counts.critical },
-    { key: "medium", label: "medium", count: counts.medium },
-    { key: "light", label: "light", count: counts.light },
-  ];
+  if (!total || !dominant) return "";
+  const share = counts[dominant] / total;
+  if (share < 0.55) {
+    return "a mix — some heavy, some small, all of it on you.";
+  }
+  if (dominant === "critical")
+    return "mostly the heavy stuff — the kind with consequences if it slips.";
+  if (dominant === "light")
+    return "mostly the small accumulating stuff — the kind that doesn't show up until it does.";
+  return "mostly steady weight — the constant low-grade tracking.";
+}
+
+function CategoryBars({
+  items,
+  total,
+}: {
+  items: Array<{ category: string; count: number }>;
+  total: number;
+}) {
   return (
     <div className="mt-4 space-y-2">
-      {rows.map((r) => {
+      {items.map((r) => {
         const pct = total > 0 ? Math.round((r.count / total) * 100) : 0;
         return (
-          <div key={r.key} className="flex items-center gap-3">
-            <span className="w-16 font-serif text-sm text-muted-foreground">
-              {r.label}
+          <div key={r.category} className="flex items-center gap-3">
+            <span className="w-40 truncate font-serif text-sm text-muted-foreground">
+              {categoryShort(r.category)}
             </span>
             <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-muted">
               <div
@@ -321,8 +334,8 @@ function SeverityBars({
                 style={{ width: `${pct}%` }}
               />
             </div>
-            <span className="w-8 text-right font-serif text-sm text-foreground">
-              {r.count}
+            <span className="w-10 text-right font-serif text-sm text-foreground">
+              {pct}%
             </span>
           </div>
         );
