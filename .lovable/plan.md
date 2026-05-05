@@ -1,13 +1,19 @@
-Two small edits.
+Apply Option B to the homepage hero in `src/routes/index.tsx`.
 
-### 1. Rename "about" → "about us"
+### Changes (lines 23–38)
 
-- `src/components/held/Shell.tsx`: header link label and footer link label both become `about us`. Keep the `/about` route path unchanged. Keep the on-`/about` flip to `begin`.
+- Eyebrow: `what happens` → `what you'll do`
+- Tighten examples: drop "appointment" after dentist.
+- Replace "happen in your house — and which ones weigh" with two short sentences: "happen in your house. Which ones land on you."
+- Remove the entire third paragraph (the "shape of what you're carrying / how it compares to other parents" sentence). The result promise lives on the result page.
 
-### 2. Swap "what's next" copy to Option B
+### Resulting block
 
-- `src/routes/about.tsx`: replace the body of the `what's next` Section with:
+```
+─── what you'll do ───
+Small moments. The school email at 9pm. The dentist you keep meaning to
+book. Summer sneakers that should have been ordered a week ago.
+You say which ones happen in your house. Which ones land on you.
+```
 
-> right now held shows you the load. next, it starts to hold some of it — gradually, over time. leave your email to be there when it does.
-
-No route, schema, or component structure changes.
+No other edits. Headline, sub-line ("Two minutes… / No advice. No score. No fixing."), begin button, and footer line remain untouched.
