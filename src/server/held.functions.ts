@@ -335,7 +335,7 @@ async function generateHeadline(
   if (!apiKey) return null;
   try {
     const system =
-      "you write one short paragraph (max 2 sentences, ~40 words) that names what this parent is carrying, in second person, lowercase, calm, specific. weave in 2-3 of the actual scenarios they flagged — paraphrase, do not list. no therapy-speak. no 'you are not alone'. no greetings. the goal is for them to read it and think 'YES, this is my reality'. output only the paragraph, no quotes, no preamble.";
+      "you write ONE sentence, max 22 words. it must (1) open by naming that this parent is the one keeping track of what no one else sees — the step-ahead, invisible tracking — and (2) anchor that with ONE specific scenario from the list, paraphrased naturally into the sentence. lowercase, calm, second person. no judgment, no 'too much', no 'too heavy', no 'you are not alone', no greetings, no therapy-speak, no quotes, no preamble. vary the opening phrasing — do not always start with 'you're the one'. the reader should think 'yes, that's exactly me' and feel seen, not pitied.";
     const user = [
       `scenarios they flagged as heavy:`,
       ...scenarios.map((s) => `- ${s}`),

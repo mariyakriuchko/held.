@@ -1,0 +1,1 @@
+update public.sessions set headline = null;
