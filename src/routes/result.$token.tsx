@@ -217,45 +217,57 @@ function ShareAndEmail({ token, headline }: { token: string; headline: string })
   };
 
   return (
-    <div className="mt-6 space-y-4">
-      {emailState === "done" ? (
-        <p className="text-sm text-muted-foreground">
-          thank you. we'll be in touch when there's something worth saying.
-        </p>
-      ) : (
-        <form onSubmit={submitEmail} className="space-y-2">
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="your email — for what comes next"
-              className="flex-1 rounded-md border border-border bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-foreground/50 focus:outline-none"
-            />
-            <button
-              type="submit"
-              disabled={emailState === "loading"}
-              className="rounded-md bg-foreground px-6 py-3 font-serif text-base text-background transition-opacity hover:opacity-90 disabled:opacity-40"
-            >
-              {emailState === "loading" ? "…" : "keep me posted"}
-            </button>
-          </div>
-          {emailState === "error" && (
-            <p className="text-xs text-muted-foreground">
-              something went wrong — try again?
-            </p>
-          )}
-        </form>
-      )}
-
-      <div className="pt-1 text-center">
+    <div className="mt-6">
+      {/* share link — closest to the card, since it's the card people share */}
+      <div className="text-center">
         <button
           onClick={share}
           className="text-xs text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
         >
-          {copied ? "link copied" : "or send this to someone who'd get it →"}
+          {copied ? "link copied" : "send this to someone who'd get it →"}
         </button>
+      </div>
+
+      {/* mission + email */}
+      <div className="mt-12 border-t border-border pt-10">
+        {emailState === "done" ? (
+          <p className="text-sm text-muted-foreground">
+            thank you. we'll be in touch when there's something worth saying.
+          </p>
+        ) : (
+          <>
+            <p className="font-serif text-[15px] leading-relaxed text-muted-foreground">
+              we're building a quiet support system for parents carrying the
+              invisible load. these things take time to build well — and we care
+              deeply about what this becomes. leave your email and we'll keep
+              you in the loop.
+            </p>
+            <form onSubmit={submitEmail} className="mt-5 space-y-2">
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your email"
+                  className="flex-1 rounded-md border border-border bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-foreground/50 focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  disabled={emailState === "loading"}
+                  className="rounded-md bg-foreground px-6 py-3 font-serif text-base text-background transition-opacity hover:opacity-90 disabled:opacity-40"
+                >
+                  {emailState === "loading" ? "…" : "keep me posted"}
+                </button>
+              </div>
+              {emailState === "error" && (
+                <p className="text-xs text-muted-foreground">
+                  something went wrong — try again?
+                </p>
+              )}
+            </form>
+          </>
+        )}
       </div>
     </div>
   );
