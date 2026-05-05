@@ -154,7 +154,7 @@ function Result() {
                     what you said weighs most
                   </p>
                   <ul className="mt-3 space-y-2">
-                    {yourWeighed.map((s, i) => (
+                    {yourWeighed.map((s: string, i: number) => (
                       <li
                         key={i}
                         className="font-serif text-lg italic leading-snug text-foreground"
