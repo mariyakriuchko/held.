@@ -164,34 +164,6 @@ export const submitSession = createServerFn({ method: "POST" })
     return { token: session.token };
   });
 
-// Submit optional coping note (after result page).
-export const submitCoping = createServerFn({ method: "POST" })
-  .inputValidator((data) =>
-    z
-      .object({
-        token: z.string(),
-        text: z.string().optional().default(""),
-        chips: z.array(z.string()).default([]),
-      })
-      .parse(data),
-  )
-  .handler(async ({ data }) => {
-    const { data: session, error } = await supabaseAdmin
-      .from("sessions")
-      .select("id")
-      .eq("token", data.token)
-      .single();
-    if (error || !session) throw new Error("session not found");
-
-    const { error: cErr } = await supabaseAdmin.from("coping").insert({
-      session_id: session.id,
-      text: data.text.trim().slice(0, 2000) || null,
-      chips: data.chips,
-    });
-    if (cErr) throw new Error(cErr.message);
-    return { ok: true };
-  });
-
 // Result data, looked up by public token.
 // We tally:
 //   - top categories (clusters)  -> what kind of load shows up
