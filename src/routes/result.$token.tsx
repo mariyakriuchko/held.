@@ -120,9 +120,34 @@ function Result() {
         </div>
       )}
 
+      {(data.severity_counts.critical + data.severity_counts.medium + data.severity_counts.light) > 0 && (
+        <div className="mt-10 border-t border-border pt-6">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">
+            the shape of it
+          </p>
+          <SeverityBars counts={data.severity_counts} />
+        </div>
+      )}
+
+      {data.top_card_comparison && data.top_card_comparison.also_flagged >= 1 && (
+        <div className="mt-10 border-t border-border pt-6">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">
+            you're not alone in this
+          </p>
+          <p className="mt-3 font-serif text-lg leading-snug text-foreground">
+            {data.top_card_comparison.also_flagged} out of the last{" "}
+            {data.top_card_comparison.sample_size} parents also flagged{" "}
+            <span className="italic text-muted-foreground">
+              "{data.top_card_comparison.scenario}"
+            </span>
+            .
+          </p>
+        </div>
+      )}
+
       <p className="mt-10 text-sm leading-relaxed text-muted-foreground">
-        you're not the only one. {data.parents_this_week.toLocaleString()} parents
-        {data.parents_this_week === 1 ? " has" : " have"} sat with these cards this week.
+        {data.parents_this_week.toLocaleString()} parent
+        {data.parents_this_week === 1 ? "" : "s"} sat with these cards this week.
       </p>
 
       <div className="mt-12 space-y-3">
