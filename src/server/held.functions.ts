@@ -296,7 +296,24 @@ export const getResult = createServerFn({ method: "GET" })
       }
     }
 
+    // Generate (and persist) a personalized headline if we don't have one yet.
+    let headline: string | null = session.headline ?? null;
+    if (!headline && weighedScenarios.length >= 2) {
+      const topScenarios = weighedScenarios
+        .sort((a, b) => b.weight - a.weight)
+        .slice(0, 5)
+        .map((s) => s.scenario);
+      headline = await generateHeadline(topScenarios, top[0] ?? null, dominant_severity);
+      if (headline) {
+        await supabaseAdmin
+          .from("sessions")
+          .update({ headline })
+          .eq("id", session.id);
+      }
+    }
+
     return {
+      headline,
       top_categories: top,
       top_categories_detailed,
       severity_counts: sevCounts,
@@ -305,6 +322,57 @@ export const getResult = createServerFn({ method: "GET" })
       top_card_comparison,
     };
   });
+
+// Calls Lovable AI to write the personalized "this is my life" sentence
+// for the result page. Returns null on any failure — the page falls back
+// to templated copy.
+async function generateHeadline(
+  scenarios: string[],
+  category: string | null,
+  severity: "critical" | "medium" | "light" | undefined,
+): Promise<string | null> {
+  const apiKey = process.env.LOVABLE_API_KEY;
+  if (!apiKey) return null;
+  try {
+    const system =
+      "you write one short paragraph (max 2 sentences, ~40 words) that names what this parent is carrying, in second person, lowercase, calm, specific. weave in 2-3 of the actual scenarios they flagged — paraphrase, do not list. no therapy-speak. no 'you are not alone'. no greetings. the goal is for them to read it and think 'YES, this is my reality'. output only the paragraph, no quotes, no preamble.";
+    const user = [
+      `scenarios they flagged as heavy:`,
+      ...scenarios.map((s) => `- ${s}`),
+      category ? `\ndominant area: ${category}` : "",
+      severity ? `tone: ${severity === "critical" ? "the kind with consequences" : severity === "light" ? "small accumulating stuff" : "steady weight"}` : "",
+    ].join("\n");
+
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: user },
+        ],
+      }),
+    });
+    if (!res.ok) {
+      console.error("headline gen failed", res.status, await res.text().catch(() => ""));
+      return null;
+    }
+    const json = (await res.json()) as {
+      choices?: Array<{ message?: { content?: string } }>;
+    };
+    const text = json.choices?.[0]?.message?.content?.trim();
+    if (!text) return null;
+    // Strip any wrapping quotes the model might add.
+    return text.replace(/^["'""]+|["'""]+$/g, "").trim();
+  } catch (e) {
+    console.error("headline gen error", e);
+    return null;
+  }
+}
 
 // Soft email capture for the "stay tuned" promise.
 // Returns ok even on duplicate so the UI doesn't leak who already signed up.
