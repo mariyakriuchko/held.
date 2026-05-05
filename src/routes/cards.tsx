@@ -23,17 +23,6 @@ const REACTIONS: { value: Reaction; label: string }[] = [
   { value: "not_my_world", label: "not the case" },
 ];
 
-function severityLabel(s: Card["severity"]): string {
-  switch (s) {
-    case "critical":
-      return "the big slips";
-    case "medium":
-      return "happens often";
-    case "light":
-      return "the small stuff";
-  }
-}
-
 function Cards() {
   const navigate = useNavigate();
   const [deck, setDeck] = React.useState<Card[] | null>(null);
