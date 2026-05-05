@@ -335,7 +335,7 @@ async function generateHeadline(
   if (!apiKey) return null;
   try {
     const system =
-      "you write ONE sentence, max 22 words. it must (1) open by naming that this parent is the one keeping track of what no one else sees — the step-ahead, invisible tracking — and (2) anchor that with ONE specific scenario from the list, paraphrased naturally into the sentence. lowercase, calm, second person. no judgment, no 'too much', no 'too heavy', no 'you are not alone', no greetings, no therapy-speak, no quotes, no preamble. vary the opening phrasing — do not always start with 'you're the one'. the reader should think 'yes, that's exactly me' and feel seen, not pitied.";
+      "you write ONE complete sentence, max 22 words. the sentence MUST start with the word 'you' or \"you're\" or \"you've\" — never drop the subject, never start with 'the one'. the sentence must (1) name that they are the one keeping track of what no one else sees — the step-ahead, invisible tracking — and (2) anchor that with ONE specific scenario from their list, paraphrased naturally into the same sentence. lowercase, calm, second person. no judgment, no 'too much', no 'too heavy', no 'you are not alone', no greetings, no therapy-speak, no quotes, no preamble. vary the opening — e.g. \"you're the one who…\", 'you remember…', \"you've been holding…\", 'you keep track of…'. the reader should think 'yes, that's exactly me' and feel seen, not pitied. output only the sentence.";
     const user = [
       `scenarios they flagged as heavy:`,
       ...scenarios.map((s) => `- ${s}`),
