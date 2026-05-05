@@ -208,6 +208,7 @@ export const getResult = createServerFn({ method: "GET" })
     };
 
     let topWeighed: { card_id: string; scenario: string } | null = null;
+    const weighedScenarios: Array<{ scenario: string; weight: number; category: string }> = [];
 
     for (const raw of reactions ?? []) {
       const r = raw as unknown as Joined;
@@ -224,6 +225,9 @@ export const getResult = createServerFn({ method: "GET" })
       if (r.reaction === "this_is_my_life" || r.weighs) {
         sevCounts[sev] += 1;
         catCounts.set(cat, (catCounts.get(cat) ?? 0) + 1);
+        if (r.cards?.scenario) {
+          weighedScenarios.push({ scenario: r.cards.scenario, weight, category: cat });
+        }
         if (r.weighs && r.cards?.scenario && !topWeighed) {
           topWeighed = { card_id: r.card_id, scenario: r.cards.scenario };
         }
