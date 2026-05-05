@@ -217,35 +217,30 @@ function ShareAndEmail({ token, headline }: { token: string; headline: string })
   };
 
   return (
-    <div className="mt-6 space-y-3">
-      <button
-        onClick={share}
-        className="w-full rounded-md bg-foreground px-6 py-3 font-serif text-base text-background transition-opacity hover:opacity-90"
-      >
-        {copied ? "link copied" : "send this to someone who'd get it"}
-      </button>
-
+    <div className="mt-6 space-y-4">
       {emailState === "done" ? (
         <p className="text-sm text-muted-foreground">
           thank you. we'll be in touch when there's something worth saying.
         </p>
       ) : (
-        <form onSubmit={submitEmail} className="flex flex-col gap-2 sm:flex-row">
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="your email — for what comes next"
-            className="flex-1 rounded-md border border-border bg-transparent px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-foreground/50 focus:outline-none"
-          />
-          <button
-            type="submit"
-            disabled={emailState === "loading"}
-            className="rounded-md border border-border bg-transparent px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
-          >
-            {emailState === "loading" ? "…" : "keep me posted"}
-          </button>
+        <form onSubmit={submitEmail} className="space-y-2">
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="your email — for what comes next"
+              className="flex-1 rounded-md border border-border bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-foreground/50 focus:outline-none"
+            />
+            <button
+              type="submit"
+              disabled={emailState === "loading"}
+              className="rounded-md bg-foreground px-6 py-3 font-serif text-base text-background transition-opacity hover:opacity-90 disabled:opacity-40"
+            >
+              {emailState === "loading" ? "…" : "keep me posted"}
+            </button>
+          </div>
           {emailState === "error" && (
             <p className="text-xs text-muted-foreground">
               something went wrong — try again?
@@ -253,6 +248,15 @@ function ShareAndEmail({ token, headline }: { token: string; headline: string })
           )}
         </form>
       )}
+
+      <div className="pt-1 text-center">
+        <button
+          onClick={share}
+          className="text-xs text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
+        >
+          {copied ? "link copied" : "or send this to someone who'd get it →"}
+        </button>
+      </div>
     </div>
   );
 }
