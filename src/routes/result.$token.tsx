@@ -165,8 +165,9 @@ function Result() {
       )}
 
       <p className="mt-12 text-sm leading-relaxed text-muted-foreground">
-        {data.parents_this_week.toLocaleString()} parent
-        {data.parents_this_week === 1 ? "" : "s"} sat with these cards this week.
+        {data.parents_this_week.toLocaleString()} other parent
+        {data.parents_this_week === 1 ? "" : "s"} recognized themselves in these
+        cards this week.
       </p>
 
       <button
