@@ -148,21 +148,34 @@ export const getResult = createServerFn({ method: "GET" })
 
     const { data: reactions } = await supabaseAdmin
       .from("reactions")
-      .select("card_id, reaction, weighs, cards(category, severity)")
+      .select("card_id, reaction, weighs, cards(category, severity, scenario)")
       .eq("session_id", session.id);
 
     const tally = new Map<string, number>();
+    const catCounts = new Map<string, number>();
     const sevTally: Record<"critical" | "medium" | "light", number> = {
+      critical: 0,
+      medium: 0,
+      light: 0,
+    };
+    const sevCounts: Record<"critical" | "medium" | "light", number> = {
       critical: 0,
       medium: 0,
       light: 0,
     };
 
     type Joined = {
+      card_id: string;
       reaction: string;
       weighs: boolean;
-      cards: { category: string; severity: "critical" | "medium" | "light" } | null;
+      cards: {
+        category: string;
+        severity: "critical" | "medium" | "light";
+        scenario: string;
+      } | null;
     };
+
+    let topWeighed: { card_id: string; scenario: string } | null = null;
 
     for (const raw of reactions ?? []) {
       const r = raw as unknown as Joined;
@@ -175,12 +188,25 @@ export const getResult = createServerFn({ method: "GET" })
       if (weight === 0) continue;
       tally.set(cat, (tally.get(cat) ?? 0) + weight);
       sevTally[sev] += weight;
+      // Counts: only "weighed" cards (this_is_my_life OR explicitly weighs).
+      if (r.reaction === "this_is_my_life" || r.weighs) {
+        sevCounts[sev] += 1;
+        catCounts.set(cat, (catCounts.get(cat) ?? 0) + 1);
+        if (r.weighs && r.cards?.scenario && !topWeighed) {
+          topWeighed = { card_id: r.card_id, scenario: r.cards.scenario };
+        }
+      }
     }
 
     const top = [...tally.entries()]
       .sort((a, b) => b[1] - a[1])
       .slice(0, 3)
       .map(([c]) => c);
+
+    const top_categories_detailed = [...catCounts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([category, count]) => ({ category, count }));
 
     // Dominant severity: which kind of load weighs most.
     const severities: Array<"critical" | "medium" | "light"> = [
@@ -193,9 +219,53 @@ export const getResult = createServerFn({ method: "GET" })
 
     const { data: count } = await supabaseAdmin.rpc("parents_this_week");
 
+    // Comparison stat: of the last 100 sessions that had any weighed reaction,
+    // how many also weighed the user's top-weighed card?
+    let top_card_comparison: {
+      scenario: string;
+      also_flagged: number;
+      sample_size: number;
+    } | null = null;
+
+    if (topWeighed) {
+      const { data: recent } = await supabaseAdmin
+        .from("reactions")
+        .select("session_id, card_id, weighs")
+        .eq("weighs", true)
+        .order("created_at", { ascending: false })
+        .limit(500);
+      if (recent && recent.length > 0) {
+        const sessions = new Set<string>();
+        const sessionsWithCard = new Set<string>();
+        for (const row of recent as Array<{
+          session_id: string;
+          card_id: string;
+          weighs: boolean;
+        }>) {
+          sessions.add(row.session_id);
+          if (row.card_id === topWeighed.card_id) {
+            sessionsWithCard.add(row.session_id);
+          }
+          if (sessions.size >= 100) break;
+        }
+        // Recount only across the first ~100 sessions encountered.
+        const sample = Math.min(sessions.size, 100);
+        if (sample >= 5) {
+          top_card_comparison = {
+            scenario: topWeighed.scenario,
+            also_flagged: sessionsWithCard.size,
+            sample_size: sample,
+          };
+        }
+      }
+    }
+
     return {
       top_categories: top,
+      top_categories_detailed,
+      severity_counts: sevCounts,
       dominant_severity,
       parents_this_week: (count as number | null) ?? 0,
+      top_card_comparison,
     };
   });

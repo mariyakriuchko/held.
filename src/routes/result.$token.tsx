@@ -120,9 +120,34 @@ function Result() {
         </div>
       )}
 
+      {(data.severity_counts.critical + data.severity_counts.medium + data.severity_counts.light) > 0 && (
+        <div className="mt-10 border-t border-border pt-6">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">
+            the shape of it
+          </p>
+          <SeverityBars counts={data.severity_counts} />
+        </div>
+      )}
+
+      {data.top_card_comparison && data.top_card_comparison.also_flagged >= 1 && (
+        <div className="mt-10 border-t border-border pt-6">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">
+            you're not alone in this
+          </p>
+          <p className="mt-3 font-serif text-lg leading-snug text-foreground">
+            {data.top_card_comparison.also_flagged} out of the last{" "}
+            {data.top_card_comparison.sample_size} parents also flagged{" "}
+            <span className="italic text-muted-foreground">
+              "{data.top_card_comparison.scenario}"
+            </span>
+            .
+          </p>
+        </div>
+      )}
+
       <p className="mt-10 text-sm leading-relaxed text-muted-foreground">
-        you're not the only one. {data.parents_this_week.toLocaleString()} parents
-        {data.parents_this_week === 1 ? " has" : " have"} sat with these cards this week.
+        {data.parents_this_week.toLocaleString()} parent
+        {data.parents_this_week === 1 ? "" : "s"} sat with these cards this week.
       </p>
 
       <div className="mt-12 space-y-3">
@@ -156,6 +181,42 @@ function Result() {
         start again
       </button>
     </Shell>
+  );
+}
+
+function SeverityBars({
+  counts,
+}: {
+  counts: { critical: number; medium: number; light: number };
+}) {
+  const total = counts.critical + counts.medium + counts.light;
+  const rows: Array<{ key: keyof typeof counts; label: string; count: number }> = [
+    { key: "critical", label: "heavy", count: counts.critical },
+    { key: "medium", label: "medium", count: counts.medium },
+    { key: "light", label: "light", count: counts.light },
+  ];
+  return (
+    <div className="mt-4 space-y-2">
+      {rows.map((r) => {
+        const pct = total > 0 ? Math.round((r.count / total) * 100) : 0;
+        return (
+          <div key={r.key} className="flex items-center gap-3">
+            <span className="w-16 font-serif text-sm text-muted-foreground">
+              {r.label}
+            </span>
+            <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-muted">
+              <div
+                className="absolute inset-y-0 left-0 bg-foreground/80"
+                style={{ width: `${pct}%` }}
+              />
+            </div>
+            <span className="w-8 text-right font-serif text-sm text-foreground">
+              {r.count}
+            </span>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
