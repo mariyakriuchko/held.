@@ -78,25 +78,15 @@ function Result() {
 
   const headline =
     data.headline ?? fallbackHeadline(data.top_categories[0], data.dominant_severity);
-  
-
-  const sevTotal =
-    data.severity_counts.critical +
-    data.severity_counts.medium +
-    data.severity_counts.light;
-
-  const catDetailed = data.top_categories_detailed ?? [];
-  const catTotal = catDetailed.reduce((acc: number, c: { count: number }) => acc + c.count, 0);
-
-  const yourWeighed = data.your_weighed ?? [];
-
-  const showComparison =
-    !!data.top_card_comparison &&
-    data.top_card_comparison.also_flagged >= 2 &&
-    data.top_card_comparison.sample_size >= 10;
+  const top = data.top_categories;
 
   const hasDetails =
-    catTotal > 0 || sevTotal > 0 || yourWeighed.length > 0 || showComparison;
+    data.severity_counts.critical +
+      data.severity_counts.medium +
+      data.severity_counts.light >
+      0 ||
+    top.length > 1 ||
+    (data.top_card_comparison && data.top_card_comparison.also_flagged >= 1);
 
   return (
     <Shell>
@@ -127,60 +117,48 @@ function Result() {
             <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
           </CollapsibleTrigger>
           <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
-            <div className="space-y-10 pt-8">
-              {catTotal > 0 && (
+            <div className="space-y-8 pt-6">
+              {data.severity_counts.critical +
+                data.severity_counts.medium +
+                data.severity_counts.light >
+                0 && (
                 <div>
                   <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                    where the load lives
+                    what it looks like for you
                   </p>
-                  <CategoryBars items={catDetailed} total={catTotal} />
+                  <SeverityBars counts={data.severity_counts} />
                 </div>
               )}
 
-              {sevTotal > 0 && (
-                <div>
+              {top.length > 1 && (
+                <div className="space-y-2">
                   <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                    what kind of weight
+                    and underneath that
                   </p>
-                  <p className="mt-3 font-serif text-lg italic leading-snug text-foreground">
-                    {severitySentence(data.severity_counts, data.dominant_severity)}
-                  </p>
+                  {top.slice(1).map((c: string) => (
+                    <p key={c} className="font-serif text-lg text-foreground">
+                      {categoryShort(c)}
+                    </p>
+                  ))}
                 </div>
               )}
 
-              {yourWeighed.length > 0 && (
-                <div>
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                    what you said weighs most
-                  </p>
-                  <ul className="mt-3 space-y-2">
-                    {yourWeighed.map((s: string, i: number) => (
-                      <li
-                        key={i}
-                        className="font-serif text-lg italic leading-snug text-foreground"
-                      >
-                        — {s}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {showComparison && data.top_card_comparison && (
-                <div>
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                    not just you
-                  </p>
-                  <p className="mt-3 font-serif text-lg leading-snug text-foreground">
-                    {data.top_card_comparison.also_flagged} of the last{" "}
-                    {data.top_card_comparison.sample_size} parents also flagged{" "}
-                    <span className="italic text-muted-foreground">
-                      "{data.top_card_comparison.scenario}"
-                    </span>
-                    .
-                  </p>
-                </div>
-              )}
+              {data.top_card_comparison &&
+                data.top_card_comparison.also_flagged >= 1 && (
+                  <div>
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                      others carrying the same thing
+                    </p>
+                    <p className="mt-3 font-serif text-lg leading-snug text-foreground">
+                      {data.top_card_comparison.also_flagged} out of the last{" "}
+                      {data.top_card_comparison.sample_size} parents also flagged{" "}
+                      <span className="italic text-muted-foreground">
+                        "{data.top_card_comparison.scenario}"
+                      </span>
+                      .
+                    </p>
+                  </div>
+                )}
             </div>
           </CollapsibleContent>
         </Collapsible>
@@ -295,38 +273,25 @@ function ShareAndEmail({ token, headline }: { token: string; headline: string })
   );
 }
 
-function severitySentence(
-  counts: { critical: number; medium: number; light: number },
-  dominant: "critical" | "medium" | "light" | undefined,
-): string {
-  const total = counts.critical + counts.medium + counts.light;
-  if (!total || !dominant) return "";
-  const share = counts[dominant] / total;
-  if (share < 0.55) {
-    return "a mix — some heavy, some small, all of it on you.";
-  }
-  if (dominant === "critical")
-    return "mostly the heavy stuff — the kind with consequences if it slips.";
-  if (dominant === "light")
-    return "mostly the small accumulating stuff — the kind that doesn't show up until it does.";
-  return "mostly steady weight — the constant low-grade tracking.";
-}
-
-function CategoryBars({
-  items,
-  total,
+function SeverityBars({
+  counts,
 }: {
-  items: Array<{ category: string; count: number }>;
-  total: number;
+  counts: { critical: number; medium: number; light: number };
 }) {
+  const total = counts.critical + counts.medium + counts.light;
+  const rows: Array<{ key: keyof typeof counts; label: string; count: number }> = [
+    { key: "critical", label: "heavy", count: counts.critical },
+    { key: "medium", label: "medium", count: counts.medium },
+    { key: "light", label: "light", count: counts.light },
+  ];
   return (
     <div className="mt-4 space-y-2">
-      {items.map((r) => {
+      {rows.map((r) => {
         const pct = total > 0 ? Math.round((r.count / total) * 100) : 0;
         return (
-          <div key={r.category} className="flex items-center gap-3">
-            <span className="w-40 truncate font-serif text-sm text-muted-foreground">
-              {categoryShort(r.category)}
+          <div key={r.key} className="flex items-center gap-3">
+            <span className="w-16 font-serif text-sm text-muted-foreground">
+              {r.label}
             </span>
             <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-muted">
               <div
@@ -334,8 +299,8 @@ function CategoryBars({
                 style={{ width: `${pct}%` }}
               />
             </div>
-            <span className="w-10 text-right font-serif text-sm text-foreground">
-              {pct}%
+            <span className="w-8 text-right font-serif text-sm text-foreground">
+              {r.count}
             </span>
           </div>
         );

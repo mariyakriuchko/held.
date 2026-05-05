@@ -312,12 +312,6 @@ export const getResult = createServerFn({ method: "GET" })
       }
     }
 
-    const your_weighed = weighedScenarios
-      .slice()
-      .sort((a, b) => b.weight - a.weight)
-      .slice(0, 4)
-      .map((s) => s.scenario);
-
     return {
       headline,
       top_categories: top,
@@ -326,7 +320,6 @@ export const getResult = createServerFn({ method: "GET" })
       dominant_severity,
       parents_this_week: (count as number | null) ?? 0,
       top_card_comparison,
-      your_weighed,
     };
   });
 
