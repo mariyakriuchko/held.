@@ -5,7 +5,6 @@ import { Shell } from "@/components/held/Shell";
 import { cn } from "@/lib/utils";
 import { getDeck } from "@/server/held.functions";
 import { readSession, updateSession, type Reaction } from "@/lib/session";
-import { ClusterMark } from "@/components/held/marks";
 
 export const Route = createFileRoute("/cards")({
   component: Cards,
@@ -23,17 +22,6 @@ const REACTIONS: { value: Reaction; label: string }[] = [
   { value: "rarely", label: "rarely" },
   { value: "not_my_world", label: "not the case" },
 ];
-
-function severityLabel(s: Card["severity"]): string {
-  switch (s) {
-    case "critical":
-      return "the big slips";
-    case "medium":
-      return "happens often";
-    case "light":
-      return "the small stuff";
-  }
-}
 
 function Cards() {
   const navigate = useNavigate();
@@ -130,7 +118,6 @@ function Cards() {
           <span>
             {i + 1} of {total}
           </span>
-          <span className="uppercase tracking-wider">{severityLabel(card.severity)}</span>
         </div>
 
         <div className="flex flex-1 items-center">
@@ -141,11 +128,6 @@ function Cards() {
               fading ? "opacity-0" : "opacity-100",
             )}
           >
-            <ClusterMark
-              category={card.category}
-              className="mb-6 h-8 w-8 text-foreground/40"
-            />
-
             <p className="font-serif text-[28px] leading-[1.35] text-foreground sm:text-[32px] sm:leading-[1.3]">
               {card?.scenario}
             </p>
@@ -154,11 +136,11 @@ function Cards() {
 
         <div
           className={cn(
-            "mt-10 transition-opacity duration-200",
-            fading ? "opacity-0" : "opacity-100",
+            "mt-10 transition-opacity duration-240 delay-[120ms]",
+            fading ? "opacity-0 delay-0" : "opacity-100",
           )}
         >
-          <div className="space-y-2">
+          <div className="space-y-1">
             {REACTIONS.map((r) => {
               const selected = currentReaction === r.value;
               return (
@@ -166,12 +148,21 @@ function Cards() {
                   key={r.value}
                   onClick={() => choose(r.value)}
                   className={cn(
-                    "block w-full rounded-md border px-5 py-4 text-left font-serif text-lg transition-colors",
+                    "group flex w-full items-center gap-3 py-3 text-left font-serif text-lg transition-colors",
                     selected
-                      ? "border-foreground bg-muted text-foreground"
-                      : "border-border bg-card text-foreground hover:border-foreground/50 hover:bg-muted",
+                      ? "text-foreground"
+                      : "text-foreground/70 hover:text-foreground",
                   )}
                 >
+                  <span
+                    aria-hidden
+                    className={cn(
+                      "inline-block h-2 w-2 shrink-0 rounded-full border transition-colors",
+                      selected
+                        ? "border-transparent bg-[var(--accent-ink)]"
+                        : "border-foreground/30 group-hover:border-foreground/60",
+                    )}
+                  />
                   {r.label}
                 </button>
               );
@@ -185,8 +176,8 @@ function Cards() {
               className={cn(
                 "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-all",
                 weighs
-                  ? "ink-accent border-accent bg-accent/10"
-                  : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground",
+                  ? "ink-accent border-accent/40 bg-accent/10"
+                  : "border-foreground/15 text-muted-foreground hover:border-foreground/40 hover:text-foreground",
               )}
               aria-pressed={weighs}
               title="Tap if this one sticks with you"
@@ -205,7 +196,7 @@ function Cards() {
                 onClick={goNext}
                 className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
               >
-                {i + 1 >= total ? "done →" : "next →"}
+                {i + 1 >= total ? "that's all →" : "next →"}
               </button>
             ) : (
               <button
@@ -217,12 +208,6 @@ function Cards() {
               </button>
             )}
           </div>
-
-          {i === 0 && (
-            <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
-              tap "weighs on me" if a card sticks with you. you can go back and change any answer.
-            </p>
-          )}
         </div>
       </div>
     </Shell>
