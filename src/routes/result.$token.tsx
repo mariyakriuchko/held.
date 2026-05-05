@@ -174,7 +174,17 @@ function Result() {
         />
       )}
 
+      <EmailCapture token={token} />
+
       <button
+        onClick={() => navigate({ to: "/" })}
+        className="mt-12 self-start text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
+      >
+        start again
+      </button>
+    </Shell>
+  );
+}
         onClick={() => navigate({ to: "/" })}
         className="mt-12 self-start text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
       >
