@@ -62,9 +62,8 @@ function AboutPage() {
       </Section>
 
       <Section eyebrow="what's next">
-        stay tuned. these things take time to build well — and we care deeply
-        about what this becomes. leave your email and we'll keep you in the
-        loop.
+        right now held shows you the load. next, it starts to hold some of it
+        — quietly, over time. leave your email to be there when it does.
       </Section>
 
       <EmailCapture />

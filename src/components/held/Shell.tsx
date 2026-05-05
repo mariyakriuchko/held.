@@ -36,7 +36,7 @@ export function Shell({ children, className }: { children: React.ReactNode; clas
               to="/about"
               className="font-serif text-sm lowercase text-muted-foreground transition-colors hover:text-foreground"
             >
-              about
+              about us
             </Link>
           )}
         </header>
