@@ -241,10 +241,9 @@ function EmailSignup({ token }: { token: string }) {
       ) : (
         <>
           <p className="font-serif text-[15px] leading-relaxed text-muted-foreground">
-            held is talking, not held. marketing. we're building it slowly, for
-            parents carrying the invisible load. leave your email and we'll
-            write when there's something real to share. no spam — that's a
-            promise.
+            held is early. we're building it slowly, for parents carrying the
+            invisible load. if you'd like to know when it grows into something
+            more, leave your email. no spam — that's a promise.
           </p>
           <form onSubmit={submitEmail} className="mt-5 space-y-2">
             <div className="flex flex-col gap-2 sm:flex-row">
