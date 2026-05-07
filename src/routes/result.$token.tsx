@@ -170,6 +170,8 @@ function Result() {
         cards this week.
       </p>
 
+      <EmailSignup token={token} />
+
       <button
         onClick={() => navigate({ to: "/" })}
         className="mt-8 self-start text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
@@ -177,6 +179,100 @@ function Result() {
         start again
       </button>
     </Shell>
+  );
+}
+
+function ShareLink({ token, headline }: { token: string; headline: string }) {
+  const [copied, setCopied] = React.useState(false);
+
+  const share = async () => {
+    const url = `${window.location.origin}/r/${token}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "held", text: headline, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2400);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  return (
+    <div className="mt-6 text-center">
+      <button
+        onClick={share}
+        className="text-xs text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
+      >
+        {copied ? "link copied" : "send this to someone who'd get it →"}
+      </button>
+    </div>
+  );
+}
+
+function EmailSignup({ token }: { token: string }) {
+  const [email, setEmail] = React.useState("");
+  const [emailState, setEmailState] = React.useState<
+    "idle" | "loading" | "done" | "error"
+  >("idle");
+
+  const submitEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (emailState === "loading" || !email.trim()) return;
+    setEmailState("loading");
+    try {
+      await subscribeEmail({
+        data: { email: email.trim(), token, source: "result" },
+      });
+      setEmailState("done");
+    } catch {
+      setEmailState("error");
+    }
+  };
+
+  return (
+    <div className="mt-12 border-t border-border pt-10">
+      {emailState === "done" ? (
+        <p className="text-sm text-muted-foreground">
+          thank you. we'll be in touch when there's something worth saying.
+        </p>
+      ) : (
+        <>
+          <p className="font-serif text-[15px] leading-relaxed text-muted-foreground">
+            held is talking, not held. marketing. we're building it slowly, for
+            parents carrying the invisible load. leave your email and we'll
+            write when there's something real to share. no spam — that's a
+            promise.
+          </p>
+          <form onSubmit={submitEmail} className="mt-5 space-y-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your email"
+                className="flex-1 rounded-md border border-border bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-foreground/50 focus:outline-none"
+              />
+              <button
+                type="submit"
+                disabled={emailState === "loading"}
+                className="rounded-md bg-foreground px-6 py-3 font-serif text-base text-background transition-opacity hover:opacity-90 disabled:opacity-40"
+              >
+                {emailState === "loading" ? "…" : "keep me posted"}
+              </button>
+            </div>
+            {emailState === "error" && (
+              <p className="text-xs text-muted-foreground">
+                something went wrong — try again?
+              </p>
+            )}
+          </form>
+        </>
+      )}
+    </div>
   );
 }
 
