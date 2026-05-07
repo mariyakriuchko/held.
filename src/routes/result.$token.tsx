@@ -91,7 +91,7 @@ function Result() {
   return (
     <Shell>
       {/* Headline card — the moment */}
-      <div className="animate-headline-in rounded-2xl border border-border bg-card px-7 py-10 shadow-sm sm:px-10 sm:py-12">
+      <div className="animate-headline-in rounded-2xl border border-border bg-card px-7 py-8 shadow-sm sm:px-10 sm:py-10">
         <div
           aria-hidden
           className="font-serif text-3xl leading-none text-muted-foreground/40"
@@ -107,11 +107,11 @@ function Result() {
       </div>
 
       {/* Share lives right under the card — that's what people actually share */}
-      <ShareAndEmail token={token} headline={headline} />
+      <ShareLink token={token} headline={headline} />
 
       {/* Quiet expandable details */}
       {hasDetails && (
-        <Collapsible className="mt-10">
+        <Collapsible className="mt-8">
           <CollapsibleTrigger className="group flex w-full items-center justify-between border-t border-border pt-5 text-left text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground">
             <span>see what made up this picture</span>
             <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
