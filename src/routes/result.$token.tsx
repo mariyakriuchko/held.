@@ -91,7 +91,7 @@ function Result() {
   return (
     <Shell>
       {/* Headline card — the moment */}
-      <div className="animate-headline-in rounded-2xl border border-border bg-card px-7 py-10 shadow-sm sm:px-10 sm:py-12">
+      <div className="animate-headline-in rounded-2xl border border-border bg-card px-7 py-8 shadow-sm sm:px-10 sm:py-10">
         <div
           aria-hidden
           className="font-serif text-3xl leading-none text-muted-foreground/40"
@@ -107,11 +107,11 @@ function Result() {
       </div>
 
       {/* Share lives right under the card — that's what people actually share */}
-      <ShareAndEmail token={token} headline={headline} />
+      <ShareLink token={token} headline={headline} />
 
       {/* Quiet expandable details */}
       {hasDetails && (
-        <Collapsible className="mt-10">
+        <Collapsible className="mt-8">
           <CollapsibleTrigger className="group flex w-full items-center justify-between border-t border-border pt-5 text-left text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground">
             <span>see what made up this picture</span>
             <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
@@ -170,6 +170,8 @@ function Result() {
         cards this week.
       </p>
 
+      <EmailSignup token={token} />
+
       <button
         onClick={() => navigate({ to: "/" })}
         className="mt-8 self-start text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
@@ -180,12 +182,8 @@ function Result() {
   );
 }
 
-function ShareAndEmail({ token, headline }: { token: string; headline: string }) {
+function ShareLink({ token, headline }: { token: string; headline: string }) {
   const [copied, setCopied] = React.useState(false);
-  const [email, setEmail] = React.useState("");
-  const [emailState, setEmailState] = React.useState<
-    "idle" | "loading" | "done" | "error"
-  >("idle");
 
   const share = async () => {
     const url = `${window.location.origin}/r/${token}`;
@@ -202,6 +200,24 @@ function ShareAndEmail({ token, headline }: { token: string; headline: string })
     }
   };
 
+  return (
+    <div className="mt-6 text-center">
+      <button
+        onClick={share}
+        className="text-xs text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
+      >
+        {copied ? "link copied" : "send this to someone who'd get it →"}
+      </button>
+    </div>
+  );
+}
+
+function EmailSignup({ token }: { token: string }) {
+  const [email, setEmail] = React.useState("");
+  const [emailState, setEmailState] = React.useState<
+    "idle" | "loading" | "done" | "error"
+  >("idle");
+
   const submitEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     if (emailState === "loading" || !email.trim()) return;
@@ -217,61 +233,48 @@ function ShareAndEmail({ token, headline }: { token: string; headline: string })
   };
 
   return (
-    <div className="mt-6">
-      {/* share link — closest to the card, since it's the card people share */}
-      <div className="text-center">
-        <button
-          onClick={share}
-          className="text-xs text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
-        >
-          {copied ? "link copied" : "send this to someone who'd get it →"}
-        </button>
-      </div>
-
-      {/* mission + email */}
-      <div className="mt-12 border-t border-border pt-10">
-        {emailState === "done" ? (
-          <p className="text-sm text-muted-foreground">
-            thank you. we'll be in touch when there's something worth saying.
+    <div className="mt-12 border-t border-border pt-10">
+      {emailState === "done" ? (
+        <p className="text-sm text-muted-foreground">
+          thank you. we'll be in touch when there's something worth saying.
+        </p>
+      ) : (
+        <>
+          <p className="font-serif text-[15px] leading-relaxed text-muted-foreground">
+            held is early. we're building it slowly, for parents carrying the
+            invisible load. if you'd like to know when it grows into something
+            more, leave your email. no spam — that's a promise.
           </p>
-        ) : (
-          <>
-            <p className="font-serif text-[15px] leading-relaxed text-muted-foreground">
-              we're building a quiet support system for parents carrying the
-              invisible load. these things take time to build well — and we care
-              deeply about what this becomes. leave your email and we'll keep
-              you in the loop.
-            </p>
-            <form onSubmit={submitEmail} className="mt-5 space-y-2">
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="your email"
-                  className="flex-1 rounded-md border border-border bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-foreground/50 focus:outline-none"
-                />
-                <button
-                  type="submit"
-                  disabled={emailState === "loading"}
-                  className="rounded-md bg-foreground px-6 py-3 font-serif text-base text-background transition-opacity hover:opacity-90 disabled:opacity-40"
-                >
-                  {emailState === "loading" ? "…" : "keep me posted"}
-                </button>
-              </div>
-              {emailState === "error" && (
-                <p className="text-xs text-muted-foreground">
-                  something went wrong — try again?
-                </p>
-              )}
-            </form>
-          </>
-        )}
-      </div>
+          <form onSubmit={submitEmail} className="mt-5 space-y-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your email"
+                className="flex-1 rounded-md border border-border bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-foreground/50 focus:outline-none"
+              />
+              <button
+                type="submit"
+                disabled={emailState === "loading"}
+                className="rounded-md bg-foreground px-6 py-3 font-serif text-base text-background transition-opacity hover:opacity-90 disabled:opacity-40"
+              >
+                {emailState === "loading" ? "…" : "keep me posted"}
+              </button>
+            </div>
+            {emailState === "error" && (
+              <p className="text-xs text-muted-foreground">
+                something went wrong — try again?
+              </p>
+            )}
+          </form>
+        </>
+      )}
     </div>
   );
 }
+
 
 function SeverityBars({
   counts,
