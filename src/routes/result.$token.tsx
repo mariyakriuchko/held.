@@ -235,9 +235,17 @@ function EmailSignup({ token }: { token: string }) {
   return (
     <div className="mt-12 border-t border-border pt-10">
       {emailState === "done" ? (
-        <p className="text-sm text-muted-foreground">
-          thank you. we'll be in touch when there's something worth saying.
-        </p>
+        <div className="rounded-2xl border border-border bg-card px-6 py-8 text-center shadow-sm sm:px-8">
+          <p className="font-serif text-3xl leading-none text-muted-foreground/40" aria-hidden>
+            ✓
+          </p>
+          <p className="mt-3 font-serif text-lg italic leading-snug text-foreground">
+            thank you.
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            we'll be in touch when there's something worth saying.
+          </p>
+        </div>
       ) : (
         <>
           <p className="font-serif text-[15px] leading-relaxed text-muted-foreground">
